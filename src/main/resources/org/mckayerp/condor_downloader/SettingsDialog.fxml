@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.mckayerp.condor_downloader.SettingsDialogController">
+
+    <content>
+        <GridPane hgap="5" vgap="5">
+            <Label text="Condor.Club User email" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="condorClubUserEmailField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Condor.Club Password" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <PasswordField fx:id="condorClubUserPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Firefox Executable Path" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <TextField fx:id="firefoxExecutablePathField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            <Button fx:id="firefoxPathBrowseButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+
+            <Label text="Directory to save ghost folder:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
+                   GridPane.rowIndex="4"/>
+            <TextField fx:id="ghostFolderField" editable="false" prefHeight="25.0" prefWidth="105.0"
+                       promptText="Enter or browse to select the folder where the ghost folder and files will be saved"
+                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <Button fx:id="browseGhostDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+
+            <Label text="Condor Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5"/>
+            <TextField fx:id="condorFolderField" editable="false"
+                       promptText="Enter or browse to select the Condor folder" GridPane.columnIndex="1"
+                       GridPane.rowIndex="5"/>
+            <Button fx:id="browseCondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="210.0"/>
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="600.0" minWidth="100.0" prefWidth="350.0"/>
+                <ColumnConstraints maxWidth="157.0" minWidth="29.0" prefWidth="100"/>
+                <ColumnConstraints/>
+            </columnConstraints>
+
+        </GridPane>
+    </content>
+
+    <ButtonType fx:id="saveSettingsButtonType" text="Save" buttonData="OK_DONE"/>
+    <ButtonType text="Cancel" buttonData="CANCEL_CLOSE"/>
+</DialogPane>
