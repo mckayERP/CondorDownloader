@@ -6,16 +6,16 @@
 
     <groupId>org.mckayERP</groupId>
     <artifactId>condor_downloader</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.01-SNAPSHOT</version>
     <name>condor_downloader</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.0</junit.version>
-        <mockito.version>5.10.0</mockito.version>
-        <selenium.version>4.26.0</selenium.version>
+        <javafx.version>21</javafx.version>
+        <junit.version>5.9.3</junit.version>
+        <mockito.version>5.14.2</mockito.version>
+        <selenium.version>4.27.0</selenium.version>
         <jlink-image-name>CondorDownloader</jlink-image-name>
-        <ini4j-jar-name>ini4j.jar</ini4j-jar-name>
         <gecko.driver.zip.file>geckodriver-v0.35.0-win32.zip</gecko.driver.zip.file>
     </properties>
 
@@ -23,21 +23,21 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>21</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-firefox-driver</artifactId>
+            <artifactId>selenium-java</artifactId>
             <version>${selenium.version}</version>
         </dependency>
         <dependency>
@@ -121,6 +121,11 @@
                             </outputDirectory>
                         </configuration>
                     </execution>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -130,6 +135,16 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <excludes>
+                        <exclude/>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -154,40 +169,6 @@
                     <noManPages>true</noManPages>
                     <stripDebug>true</stripDebug>
                     <noHeaderFiles>true</noHeaderFiles>
-                </configuration>
-            </plugin>
-            <!-- Git Commit ID Plugin -->
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.9.10</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <verbose>true</verbose>
-                </configuration>
-            </plugin>
-            <!-- Build Number Plugin -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doCheck>false</doCheck>
-                    <doUpdate>false</doUpdate>
                 </configuration>
             </plugin>
         </plugins>
