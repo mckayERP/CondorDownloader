@@ -246,7 +246,7 @@ public class SettingsDialogController implements Initializable
         } catch (IOException | NullPointerException e)
         {
             logger.log(Level.WARNING, "Unable to open or " + "find the file " + INI_FILE + ". Creating it.");
-            iniConfiguration = createDefaultINIFile();
+            iniConfiguration = createDefaultINIConfigAndSaveFile(createNewINIFileIfNeeded());
         } catch (ConfigurationException e)
         {
             throw new RuntimeException(e);
@@ -333,9 +333,25 @@ public class SettingsDialogController implements Initializable
         return encryptedPassword;
     }
 
-    private INIConfiguration createDefaultINIFile()
+    private INIConfiguration createDefaultINIConfigAndSaveFile(File file)
     {
-        iniConfiguration = null;
+        INIConfiguration config = new INIConfiguration();
+        String fireFoxExePath = FireFoxFinder.getPathToExe();
+        SubnodeConfiguration firefoxSection = config.getSection(FIREFOX_SECTION);
+        firefoxSection.addProperty(EXECUTABLE_PATH, fireFoxExePath);
+        try
+        {
+            Writer iniWriter = new FileWriter(file);
+            config.write(iniWriter);
+        } catch (Exception e)
+        {
+            logger.log(Level.SEVERE, e.getMessage());
+        }
+        return config;
+    }
+
+    private File createNewINIFileIfNeeded()
+    {
         File file = getIniConfiguration();
         try
         {
@@ -346,18 +362,7 @@ public class SettingsDialogController implements Initializable
             throw new RuntimeException(e);
         }
         logger.log(Level.FINE, "INI File path: " + file.getPath());
-        try
-        {
-            String fireFoxExePath = FireFoxFinder.getPathToExe();
-            SubnodeConfiguration firefoxSection = iniConfiguration.getSection(FIREFOX_SECTION);
-            firefoxSection.addProperty(EXECUTABLE_PATH, fireFoxExePath);
-            Writer iniWriter = new FileWriter(file);
-            iniConfiguration.write(iniWriter);
-        } catch (Exception e)
-        {
-            logger.log(Level.SEVERE, e.getMessage());
-        }
-        return iniConfiguration;
+        return file;
     }
 
     public Path getDefaultCondorDirectory()
