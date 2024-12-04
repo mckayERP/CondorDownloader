@@ -2,12 +2,12 @@ package org.mckayerp.condor_downloader;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class ControllerTest {
 
@@ -28,6 +28,7 @@ public class ControllerTest {
 
         WebDriver driver = mock(WebDriver.class);
         Controller controller = spy(Controller.class);
+        doNothing().when(controller).updateStatus(anyString());
         controller.condorFolderPath = Paths.get("C:\\Users\\Mike\\gobledygook_13245346");
         assertThrows(Exception.class, () ->
                 controller.downloadFlightPlan(driver),
@@ -38,8 +39,14 @@ public class ControllerTest {
     @Test
     final void givenFlightTrackFolderExistsWhenDownloadFlightTrackIsCalled_doesNotThrowAnException() {
 
-        WebDriver driver = mock(WebDriver.class);
+        WebDriver.Navigation navigateMock = mock(WebDriver.Navigation.class);
+        WebDriver driver = mock(FirefoxDriver.class);
+        doReturn("someString").when(driver).getCurrentUrl();
+        doReturn("someString").when(driver).getPageSource();
+        doReturn(navigateMock).when(driver).navigate();
         Controller controller = spy(Controller.class);
+        doNothing().when(controller).updateStatus(anyString());
+        doReturn("").when(controller).getCondorClubTaskIDFromPageSource(anyString());
         controller.condorFolderPath = Paths.get("C:\\Users\\Mike\\Documents\\Condor\\FlightTracks");
         controller.downloadFlightPlan(driver);
 

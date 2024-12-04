@@ -108,7 +108,7 @@ public class Controller implements Initializable
 
         updateStatus("""
                 Welcome to the Condor downloader.
-                Please edit and save the settings to as required before using this tool.
+                Please edit and save the settings as required before using this tool.
                 To download the ghosts of a flight, enter the task code (e.g. "ABCDEF") and the number of ghost tracks\s
                 to download.  You can also select to download the flight plan as well. The download button will be\s
                 enabled once the settings and task code have been entered.""", false, false);
@@ -157,21 +157,21 @@ public class Controller implements Initializable
         settingsController.saveSettings();
     }
 
-    private void updateStatus(String update)
+    protected void updateStatus(String update)
     {
         boolean ADD_LINEBREAK_BEFORE = true;
         boolean SCROLL_TO_BOTTOM = true;
         updateStatus(update, ADD_LINEBREAK_BEFORE, SCROLL_TO_BOTTOM);
     }
 
-    private void updateStatus(Level level, String update)
+    protected void updateStatus(Level level, String update)
     {
         boolean ADD_LINEBREAK_BEFORE = true;
         boolean SCROLL_TO_BOTTOM = true;
         updateStatus(level, update, ADD_LINEBREAK_BEFORE, SCROLL_TO_BOTTOM);
     }
 
-    private void updateStatus(String update, boolean addLineBreakBefore, boolean scroll_to_bottom)
+    protected void updateStatus(String update, boolean addLineBreakBefore, boolean scroll_to_bottom)
     {
         updateStatus(Level.INFO, update, addLineBreakBefore, scroll_to_bottom);
     }
@@ -263,7 +263,7 @@ public class Controller implements Initializable
         System.setProperty("webdriver.gecko.driver", geckoPath);
     }
 
-    private String getCondorClubTaskIDFromPageSource(String content)
+    String getCondorClubTaskIDFromPageSource(String content)
     {
         if (content == null)
             throw new IllegalArgumentException("The page content can't be null.");
@@ -337,6 +337,9 @@ public class Controller implements Initializable
 
     private String findBestTimesPageURL(String content, String id)
     {
+        if (content == null || content.isEmpty())
+            throw new IllegalArgumentException("Content can't be null");
+
         boolean wasUsedInCompetition = content.contains("This task has been used in a competition.");
         String bestTimesPageURL = "https://www.condor.club/besttimes/0/?id=" + id;
         if (wasUsedInCompetition && copyGhostsFromCompetition.isSelected())
@@ -480,16 +483,20 @@ public class Controller implements Initializable
     public void downloadFlightPlan(WebDriver driver)
     {
 
+        requireNonNull(condorFolderPath);
+        if (!condorFolderPath.toFile().exists())
+            throw new RuntimeException("Condor folder does not exist: " + condorFolderPath);
+
         updateStatus("Downloading the flight plan...");
         String currentURL = driver.getCurrentUrl();
         if (currentURL == null)
             throw new RuntimeException("Condor.club task page URL is null");
 
-        requireNonNull(condorFolderPath);
-        if (!condorFolderPath.toFile().exists())
-            throw new RuntimeException("Condor folder does not exist: " + condorFolderPath);
-
         String taskPageSource = driver.getPageSource();
+        if (taskPageSource == null || taskPageSource.isEmpty()) {
+            updateStatus(Level.SEVERE, "The task page source is null or empty!");
+            return;
+        }
         String taskID = getCondorClubTaskIDFromPageSource(taskPageSource);
         boolean downloadPossible = taskPageSource.contains("Download it now!");
         if (!downloadPossible)
