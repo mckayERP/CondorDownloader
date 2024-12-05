@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -59,6 +59,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
@@ -87,15 +93,15 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-                                <delete file ="${project.build.directory}/${jlink-image-name}.zip" />
+                                <delete file="${project.build.directory}/${jlink-image-name}.zip"/>
                                 <copy file="src/main/resources/org/mckayerp/condor_downloader/${gecko.driver.zip.file}"
-                                      tofile="${project.build.directory}/${gecko.driver.zip.file}" />
+                                      tofile="${project.build.directory}/${gecko.driver.zip.file}"/>
                                 <unzip src="${project.build.directory}/${gecko.driver.zip.file}"
-                                       dest="${project.build.directory}/${jlink-image-name}/bin/drivers/geckodriver" />
-                                <zip destfile="${project.build.directory}/${jlink-image-name}.zip" >
-                                    <zipfileset dir="${project.build.directory}" includes="${jlink-image-name}/**" />
+                                       dest="${project.build.directory}/${jlink-image-name}/bin/drivers/geckodriver"/>
+                                <zip destfile="${project.build.directory}/${jlink-image-name}.zip">
+                                    <zipfileset dir="${project.build.directory}" includes="${jlink-image-name}/**"/>
                                 </zip>
-                                <delete file="${project.build.directory}/${gecko.driver.zip.file}" />
+                                <delete file="${project.build.directory}/${gecko.driver.zip.file}"/>
                             </target>
                         </configuration>
                         <goals>

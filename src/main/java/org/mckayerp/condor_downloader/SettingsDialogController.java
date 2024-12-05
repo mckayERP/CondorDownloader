@@ -26,14 +26,16 @@ import static java.util.Objects.requireNonNull;
 public class SettingsDialogController implements Initializable
 {
 
+    static final CondorVersion CONDOR2 = CondorVersion.CONDOR_2;
+    static final CondorVersion CONDOR3 = CondorVersion.CONDOR_3;
     private static final String USER_INFO_SECTION = "User_Info";
     private static final String GHOST_FOLDER = "Ghost_Folder";
-    private static final String CONDOR_FOLDER = "Condor_Folder";
+    private static final String CONDOR2_FOLDER = "Condor2_Folder";
+    private static final String CONDOR3_FOLDER = "Condor3_Folder";
     private static final String USER_EMAIL = "CondorClub_User_Email";
     private static final String USER_PASSWORD = "CondorClub_User_Password";
     private static final String FIREFOX_SECTION = "Firefox";
     private static final String EXECUTABLE_PATH = "executable_path";
-
     private static final String INI_FILE = "CondorDownloader.ini";
     private static Logger logger;
     public DialogPane dialogPane;
@@ -42,15 +44,16 @@ public class SettingsDialogController implements Initializable
     public TextField firefoxExecutablePathField;
     public ButtonType saveSettingsButtonType;
     public Button firefoxPathBrowseButton;
-    public TextField ghostFolderField;
-    public Button browseGhostDirectoryButton;
-    public TextField condorFolderField;
-    public Button browseCondorDirectoryButton;
+    public TextField condor2FolderField;
+    public Button browse2CondorDirectoryButton;
+    public TextField condor3FolderField;
+    public Button browse3CondorDirectoryButton;
     private Window owner;
     private String firefoxExecutablePath;
     private INIConfiguration iniConfiguration;
     private Path ghostFolderPath;
-    private Path condorFolderPath;
+    private Path condor2FolderPath;
+    private Path condor3FolderPath;
     private String condorClubUserEmail;
     private String condorClubUserPassword;
 
@@ -59,24 +62,23 @@ public class SettingsDialogController implements Initializable
         logger = Logger.getLogger(SettingsDialogController.class.getName());
     }
 
-    public Path getGhostFolderPath()
+
+    public Path getCondor2FolderPath()
     {
-        return ghostFolderPath;
+        return condor2FolderPath;
     }
 
-    public void setGhostFolderPath(Path ghostFolderPath)
+    public Path getCondor3FolderPath()
     {
-        this.ghostFolderPath = ghostFolderPath;
+        return condor3FolderPath;
     }
 
-    public Path getCondorFolderPath()
+    public void setCondorFolderPath(Path condorFolderPath, CondorVersion version)
     {
-        return condorFolderPath;
-    }
-
-    public void setCondorFolderPath(Path condorFolderPath)
-    {
-        this.condorFolderPath = condorFolderPath;
+        if (version == CONDOR2)
+            this.condor2FolderPath = condorFolderPath;
+        if (version == CONDOR3)
+            this.condor3FolderPath = condorFolderPath;
     }
 
     public String getCondorClubUserEmail()
@@ -95,32 +97,29 @@ public class SettingsDialogController implements Initializable
 
         dialogPane.lookupButton(saveSettingsButtonType).addEventFilter(ActionEvent.ANY, this::saveSettings);
 
-        browseCondorDirectoryButton.setOnAction(event ->
+        browse2CondorDirectoryButton.setOnAction(event ->
         {
             DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("Select Condor directory");
-            chooser.setInitialDirectory(new File(condorFolderField.getText()));
+            chooser.setTitle("Select CONDOR_2 directory");
+            File condor2Folder = checkOrGetDefault(condor2FolderField.getText());
+            chooser.setInitialDirectory(condor2Folder);
             File selectedDirectory = chooser.showDialog(requireNonNull(owner));
             if (selectedDirectory.exists())
-                condorFolderField.setText(selectedDirectory.getAbsolutePath());
+                condor2FolderField.setText(selectedDirectory.getAbsolutePath());
             else
                 throw new RuntimeException("Directory does not exist: " + selectedDirectory);
         });
 
-        browseGhostDirectoryButton.setOnAction(actionEvent ->
+        browse3CondorDirectoryButton.setOnAction(event ->
         {
             DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("Select directory to save ghost folder");
-            File initialDirectory = new File(ghostFolderField.getText());
-            if (!initialDirectory.exists())
-                initialDirectory = getDefaultCondorDirectory().toFile();
-            chooser.setInitialDirectory(initialDirectory);
+            chooser.setTitle("Select CONDOR_3 directory");
+            File condor3Folder = checkOrGetDefault(condor3FolderField.getText());
+            chooser.setInitialDirectory(condor3Folder);
             File selectedDirectory = chooser.showDialog(requireNonNull(owner));
             if (selectedDirectory.exists())
-            {
-                ghostFolderField.setText(selectedDirectory.getAbsolutePath());
-                logger.log(Level.FINE, "Ghost folder set to " + ghostFolderField.getText());
-            } else
+                condor3FolderField.setText(selectedDirectory.getAbsolutePath());
+            else
                 throw new RuntimeException("Directory does not exist: " + selectedDirectory);
         });
 
@@ -137,6 +136,14 @@ public class SettingsDialogController implements Initializable
                 throw new RuntimeException("Please select the Firefox executable: " + firefoxExecutablePathField.getText());
         });
 
+    }
+
+    private File checkOrGetDefault(String pathString)
+    {
+        File folder = new File(pathString);
+        if (!folder.exists() || !folder.isDirectory())
+            folder = Path.of(System.getProperty("user.home"), "documents").toFile();
+        return folder;
     }
 
     private FileChooser getExecutableFileChooser(TextField textField)
@@ -194,14 +201,17 @@ public class SettingsDialogController implements Initializable
             firefoxExecutablePath = path.toString();
         else
         {
-            firefoxExecutablePath = FireFoxFinder.getPathToExe();
+            firefoxExecutablePath = FireFoxFinder.get().getPathToExe();
         }
-        condorFolderPath = getPathFromIniFile(iniConfiguration, USER_INFO_SECTION, CONDOR_FOLDER);
-        if (condorFolderPath == null)
-            condorFolderPath = getDefaultCondorDirectory();
+        condor2FolderPath = getPathFromIniFile(iniConfiguration, USER_INFO_SECTION, CONDOR2_FOLDER);
+        if (condor2FolderPath == null)
+            condor2FolderPath = getDefaultCondorDirectory(CONDOR2);
+        condor3FolderPath = getPathFromIniFile(iniConfiguration, USER_INFO_SECTION, CONDOR3_FOLDER);
+        if (condor3FolderPath == null)
+            condor3FolderPath = getDefaultCondorDirectory(CONDOR3);
         ghostFolderPath = getPathFromIniFile(iniConfiguration, USER_INFO_SECTION, GHOST_FOLDER);
         if (ghostFolderPath == null)
-            ghostFolderPath = Paths.get(condorFolderPath.toString(), "FlightTracks", "Ghosts");
+            ghostFolderPath = Paths.get(condor2FolderPath.toString(), "FlightTracks", "Ghosts");
 
         updateSettingFields();
 
@@ -213,8 +223,14 @@ public class SettingsDialogController implements Initializable
         condorClubUserEmailField.setText(condorClubUserEmail);
         condorClubUserPasswordField.setText(condorClubUserPassword);
         firefoxExecutablePathField.setText(firefoxExecutablePath);
-        condorFolderField.setText(condorFolderPath.toString());
-        ghostFolderField.setText(ghostFolderPath.toString());
+        if (condor2FolderPath != null)
+            condor2FolderField.setText(condor2FolderPath.toString());
+        else
+            condor2FolderField.setText("-- Condor 2 folder not found --");
+        if (condor3FolderPath != null)
+            condor3FolderField.setText(condor3FolderPath.toString());
+        else
+            condor3FolderField.setText("-- Condor 3 folder not found --");
     }
 
     private String decryptPassword(String encryptedPassword)
@@ -289,7 +305,8 @@ public class SettingsDialogController implements Initializable
 
         firefoxSection.addProperty(EXECUTABLE_PATH, firefoxExecutablePath);
         userInfoSection.addProperty(GHOST_FOLDER, ghostFolderPath.toString());
-        userInfoSection.addProperty(CONDOR_FOLDER, condorFolderPath.toString());
+        userInfoSection.addProperty(CONDOR2_FOLDER, condor2FolderPath.toString());
+        userInfoSection.addProperty(CONDOR3_FOLDER, condor3FolderPath.toString());
         userInfoSection.addProperty(USER_EMAIL, condorClubUserEmail);
         userInfoSection.addProperty(USER_PASSWORD, getEncryptedPassword());
 
@@ -302,8 +319,8 @@ public class SettingsDialogController implements Initializable
         condorClubUserEmail = condorClubUserEmailField.getText();
         condorClubUserPassword = condorClubUserPasswordField.getText();
         firefoxExecutablePath = firefoxExecutablePathField.getText();
-        setGhostFolderPath(Paths.get(ghostFolderField.getText()));
-        setCondorFolderPath(Paths.get(condorFolderField.getText()));
+        setCondorFolderPath(Paths.get(condor2FolderField.getText()), CONDOR2);
+        setCondorFolderPath(Paths.get(condor3FolderField.getText()), CONDOR3);
     }
 
     private void writeIniConfigurationToFile()
@@ -336,7 +353,7 @@ public class SettingsDialogController implements Initializable
     private INIConfiguration createDefaultINIConfigAndSaveFile(File file)
     {
         INIConfiguration config = new INIConfiguration();
-        String fireFoxExePath = FireFoxFinder.getPathToExe();
+        String fireFoxExePath = FireFoxFinder.get().getPathToExe();
         SubnodeConfiguration firefoxSection = config.getSection(FIREFOX_SECTION);
         firefoxSection.addProperty(EXECUTABLE_PATH, fireFoxExePath);
         try
@@ -365,14 +382,19 @@ public class SettingsDialogController implements Initializable
         return file;
     }
 
-    public Path getDefaultCondorDirectory()
+    Path getDefaultCondorDirectory(CondorVersion version)
     {
 
         String userHome = System.getProperty("user.home");
-        Path condorFolderPath = Paths.get(userHome, "Documents", "Condor3");
+        Path condorFolderPath;
+        if (version == CONDOR3)
+            condorFolderPath = Paths.get(userHome, "Documents", "Condor3");
+        else
+            condorFolderPath = Paths.get(userHome, "Documents", "Condor");
+
         if (!pathExists(condorFolderPath))
         {
-            throw new RuntimeException("Can't locate the default Condor folder. This should be Documents\\Condor3");
+            condorFolderPath = null;
         }
         return condorFolderPath;
 

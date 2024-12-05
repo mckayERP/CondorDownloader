@@ -6,29 +6,37 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.util.function.UnaryOperator;
 
-public class NumberFieldFormatter extends TextFormatter<Integer> {
+public class NumberFieldFormatter extends TextFormatter<Integer>
+{
 
-    static final UnaryOperator<TextFormatter.Change> integerFilter = change -> {
+    static final UnaryOperator<TextFormatter.Change> integerFilter = change ->
+    {
         String newText = change.getControlNewText();
-        if (newText.matches("([1-9][0-9]*)?")) {
+        if (newText.matches("([0-9]+)?"))
+        {
             return change;
-        } else {
+        } else
+        {
             change.setRange(0, 0);
         }
         return null;
     };
 
-    static final StringConverter<Integer> converter = new IntegerStringConverter() {
+    static final StringConverter<Integer> converter = new IntegerStringConverter()
+    {
         // Modified version of standard converter that evaluates an empty string
         // as zero instead of null:
         @Override
-        public Integer fromString(String s) {
-            if (s.isEmpty()) return 0 ;
+        public Integer fromString(String s)
+        {
+            if (s.isEmpty())
+                return 0;
             return super.fromString(s);
         }
     };
 
-    public NumberFieldFormatter() {
+    public NumberFieldFormatter()
+    {
         super(converter, 0, integerFilter);
     }
 

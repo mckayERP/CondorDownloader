@@ -1,4 +1,5 @@
 package org.mckayerp.condor_downloader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -10,19 +11,20 @@ public class WindowsRegistry
 {
 
     /**
-     *
      * @param location path in the registry
-     * @param key registry key
+     * @param key      registry key
      * @return registry value or null if not found
      */
-    public static String readRegistry(String location, String key, String parameters){
-        try {
+    public static String readRegistry(String location, String key, String parameters)
+    {
+        try
+        {
             // Run reg query, then read output with StreamReader (internal class)
             String cmd = "reg";
             String query = "query";
             String params = "\"" + location + "\"" + " /v \"" + key + "\"";
             if (parameters != null && !parameters.isEmpty())
-                params += " " +parameters;
+                params += " " + parameters;
             String command = cmd + " " + query + " " + params;
 
             Process process = Runtime.getRuntime().exec(command);
@@ -33,7 +35,8 @@ public class WindowsRegistry
             reader.join();
             String output = reader.getResult();
 
-            if( output.contains("ERROR:")){
+            if (output.contains("ERROR:"))
+            {
                 return null;
             }
 
@@ -53,41 +56,47 @@ public class WindowsRegistry
             String[] parsed = output.replace("\r\n", "  ").trim().split("\s\s+");
             if (parsed.length < 2)
                 return null;
-            return parsed[parsed.length-2];
-        }
-        catch (Exception e) {
+            return parsed[parsed.length - 2];
+        } catch (Exception e)
+        {
             throw new RuntimeException(e);
         }
 
     }
 
-    static class StreamReader extends Thread {
-        private final InputStream is;
-        private final StringWriter sw= new StringWriter();
+    public static void main(String[] args)
+    {
 
-        public StreamReader(InputStream is) {
+        // Sample usage
+        String value = WindowsRegistry.readRegistry("HKLM\\SOFTWARE\\MOZILLA\\MOZILLA FIREFOX", "PathToExe", "/s");
+        System.out.println("Value is -> " + value);
+    }
+
+    static class StreamReader extends Thread
+    {
+        private final InputStream is;
+        private final StringWriter sw = new StringWriter();
+
+        public StreamReader(InputStream is)
+        {
             this.is = is;
         }
 
-        public void run() {
-            try {
+        public void run()
+        {
+            try
+            {
                 int c;
                 while ((c = is.read()) != -1)
                     sw.write(c);
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored)
+            {
             }
         }
 
-        public String getResult() {
+        public String getResult()
+        {
             return sw.toString();
         }
-    }
-    public static void main(String[] args) {
-
-        // Sample usage
-        String value = WindowsRegistry.readRegistry("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\"
-                + "Explorer\\Shell Folders", "Personal", null);
-        System.out.println(value);
     }
 }

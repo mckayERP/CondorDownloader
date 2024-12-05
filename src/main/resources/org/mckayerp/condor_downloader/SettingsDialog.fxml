@@ -2,8 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<DialogPane xmlns:fx="http://javafx.com/fxml" fx:id="dialogPane"
+            xmlns="http://javafx.com/javafx"
             fx:controller="org.mckayerp.condor_downloader.SettingsDialogController">
 
     <content>
@@ -18,18 +18,17 @@
             <TextField fx:id="firefoxExecutablePathField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             <Button fx:id="firefoxPathBrowseButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
 
-            <Label text="Directory to save ghost folder:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
-                   GridPane.rowIndex="4"/>
-            <TextField fx:id="ghostFolderField" editable="false" prefHeight="25.0" prefWidth="105.0"
-                       promptText="Enter or browse to select the folder where the ghost folder and files will be saved"
-                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-            <Button fx:id="browseGhostDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+            <Label text="Condor2 Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4"/>
+            <TextField fx:id="condor2FolderField" editable="false"
+                       promptText="Enter or browse to select the Condor 2 folder" GridPane.columnIndex="1"
+                       GridPane.rowIndex="4"/>
+            <Button fx:id="browse2CondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
 
-            <Label text="Condor Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5"/>
-            <TextField fx:id="condorFolderField" editable="false"
-                       promptText="Enter or browse to select the Condor folder" GridPane.columnIndex="1"
+            <Label text="Condor3 Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5"/>
+            <TextField fx:id="condor3FolderField" editable="false"
+                       promptText="Enter or browse to select the Condor 3 folder" GridPane.columnIndex="1"
                        GridPane.rowIndex="5"/>
-            <Button fx:id="browseCondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+            <Button fx:id="browse3CondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
 
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" minWidth="210.0"/>
