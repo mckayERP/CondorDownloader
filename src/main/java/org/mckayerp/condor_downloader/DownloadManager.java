@@ -78,7 +78,7 @@ public class DownloadManager
         logger.log(Level.FINE, "->download()");
         setup();
         createOrClearTmpFolder();
-        statusProvider.updateStatus("Starting download...");
+        statusProvider.updateStatus("Starting download...", true, false);
         WebDriver driver = getWebDriver();
         if (getTaskPageAndLogIn(driver))
         {

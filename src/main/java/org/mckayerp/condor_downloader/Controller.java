@@ -94,7 +94,7 @@ public class Controller implements Initializable, StatusProvider
                 Please edit and save the settings as required before using this tool.
                 To download the ghosts of a flight, enter the task code (e.g. "ABCDEF") and the number of ghost tracks\s
                 to download.  You can also select to download the flight plan as well. The download button will be\s
-                enabled once the settings and task code have been entered.""", false, false);
+                enabled once the settings and task code have been entered.""", true, false);
     }
 
     public void setSettingsDialog(SettingsDialog dialog)
@@ -205,17 +205,17 @@ public class Controller implements Initializable, StatusProvider
     }
 
     @Override
-    public void updateStatus(Level logLevel, String update, boolean addLineBreakBefore, boolean scroll_to_bottom)
+    public void updateStatus(Level logLevel, String update, boolean clearStatus, boolean scroll_to_bottom)
     {
         logger.log(logLevel, "Status update: " + update);
         Platform.runLater(() ->
         {
 
-            if (addLineBreakBefore)
-                statusText.appendText("\n" + update);
+            if (clearStatus)
+                statusText.setText(update);
             else
             {
-                statusText.setText(update);
+                statusText.appendText("\n" + update);
             }
             if (scroll_to_bottom)
                 statusText.appendText("");
