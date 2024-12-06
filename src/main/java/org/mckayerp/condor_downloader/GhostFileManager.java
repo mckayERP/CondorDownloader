@@ -3,6 +3,8 @@ package org.mckayerp.condor_downloader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
@@ -12,6 +14,8 @@ import static org.mckayerp.condor_downloader.DownloadManager.getCondorFolderPath
 public class GhostFileManager
 {
 
+    static Logger logger = Logger.getLogger(GhostFileManager.class.getName());
+
     public static String findNewFileName(String zipFileName, String taskCode, String ghostID)
     {
 
@@ -19,10 +23,7 @@ public class GhostFileManager
         contestLetters = contestLetters.substring(0, contestLetters.lastIndexOf("-"));
         contestLetters = contestLetters.substring(contestLetters.lastIndexOf("-") + 1);
 
-        String newFileName = "Ghost_" + taskCode + "_" + contestLetters + "_" + ghostID + ".ftr";
-        System.out.println("Creating new file: " + zipFileName + " -> " + newFileName);
-
-        return newFileName;
+        return "Ghost_" + taskCode + "_" + contestLetters + "_" + ghostID + ".ftr";
 
     }
 
@@ -34,8 +35,9 @@ public class GhostFileManager
             {
                 String zipFileName = zipPath.toFile().getName();
                 String ghostID = zipFileName.substring(zipFileName.lastIndexOf("-") + 1, zipFileName.lastIndexOf(".zip"));
-                String newFileName = findNewFileName(zipPath.toFile().getName(), taskCode, ghostID);
+                String newFileName = findNewFileName(zipFileName, taskCode, ghostID);
                 ZipFileManager.extractSingleFileFromArchiveAndRename(zipPath, newGhostDirectoryPath, newFileName);
+                logger.log(Level.FINE, "Extracted " + zipFileName + " to " + newFileName);
             });
         } catch (IOException ignored)
         {
@@ -58,11 +60,11 @@ public class GhostFileManager
             files.filter(path -> path.getParent().equals(directoryPath) && path.toFile().getName().startsWith("Ghost_") && (path.toFile().getName().endsWith(".ftr") || path.toFile().getName().endsWith(".igc"))).forEach(path ->
             {
                 if (!path.toFile().delete())
-                    System.out.println("Couldn't delete file " + path);
+                    logger.log(Level.WARNING,"Couldn't delete file " + path);
             });
         } catch (IOException e)
         {
-            System.out.println("Couldn't delete ghost .ftr and .igc files: " + e);
+            logger.log(Level.WARNING,"Couldn't delete ghost .ftr and .igc files: " + e);
         }
     }
 
