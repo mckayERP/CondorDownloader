@@ -17,6 +17,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -87,7 +89,8 @@ public class DownloadManager
             driver.close();
         }
         GeckoDriverManager.kill();
-        statusProvider.updateStatus("Download complete!");
+        statusProvider.updateStatus("Download complete!  Enjoy the flight.");
+        statusProvider.updateStatus("Or, you can download a different task.");
 
 
     }
@@ -124,13 +127,25 @@ public class DownloadManager
 
         driver.get(urlWithLogin);
         String pageSource = driver.getPageSource();
-        if (pageSource != null && pageSource.contains("Task not available yet."))
-        {
-            statusProvider.clearStatus();
-            statusProvider.updateStatus("The task was not found or is not available yet.  Please try again " + "with a different task code.", false, true);
+        if (pageSource == null) {
+            statusProvider.updateStatus(Level.SEVERE, "The page source was null. Unable to load the web page.",
+                    true, true);
             return false;
         }
-        statusProvider.updateStatus("Found the task page...", false, true);
+        if (pageSource.contains("Task not available yet."))
+        {
+            statusProvider.updateStatus("The task was not found or is not available yet.  Please try again " +
+                    "with a different task code.", false, true);
+            return false;
+        }
+        if (pageSource.contains("This task is currently used in competition and is not available now."))
+        {
+            statusProvider.updateStatus("The task is being used in a competition and is not available now.  " +
+                    "Please try again with a different task code.", false, true);
+            return false;
+        }
+
+        statusProvider.updateStatus("Found the task page...");
         condorVersion = getCondorVersion(driver);
         if (versionIsNotCompatible())
             return false;
@@ -183,7 +198,7 @@ public class DownloadManager
 
         if (loginSuccessful)
         {
-            statusProvider.updateStatus("Login successful.", false, true);
+            statusProvider.updateStatus("Login successful...");
         } else if (loginFailed)
         {
             statusProvider.updateStatus("Login was not successful. Please check the username and password in " + "settings and try again.", true, true);
@@ -217,16 +232,28 @@ public class DownloadManager
         if (pageSource == null)
             throw new RuntimeException("Page source from the driver is null. Unable to determine what " + "the Condor version is.");
 
-        String tagString = "Condor version:</th>\n\t<td>";
-        String version = pageSource.substring(pageSource.indexOf(tagString) + tagString.length());
+        statusProvider.updateStatus("Determining the Condor version...");
+        String tagString = "Condor version:";
+        String subPage = pageSource.substring(pageSource.indexOf(tagString));
+        Pattern pattern = Pattern.compile("Condor version:\\D*?>(\\d)");
+        Matcher matcher = pattern.matcher(subPage);
+        String version = "0";
+        if (matcher.find())
+            version = matcher.group(1);
         if (version.startsWith("2"))
         {
+            statusProvider.updateStatus("Found Condor2...");
             condorVersion = CONDOR_2;
         } else if (version.startsWith("3"))
         {
+            statusProvider.updateStatus("Found Condor3...");
             condorVersion = CONDOR_3;
         } else
+        {
+            statusProvider.updateStatus(Level.SEVERE, "Unable to tell what Condor version was or the version is incompatible with " +
+                    "Condor2 or Condor3");
             throw new RuntimeException("Unable to tell from the page source what the Condor version is.");
+        }
 
         return condorVersion;
     }
@@ -250,14 +277,33 @@ public class DownloadManager
         statusProvider.updateStatus(Level.WARNING, warning.replace("*", versionNumber));
     }
 
-    private Path getCondorFolderPath(CondorVersion condorVersion)
+    static Path getDefaultCondorDirectory(CondorVersion version)
     {
-        if (condorVersion == CONDOR_2)
-            return downloadData.getCondor2Path();
-        else if (condorVersion == CONDOR_3)
-            return downloadData.getCondor3Path();
+
+        String userHome = System.getProperty("user.home");
+        Path condorFolderPath;
+        if (version == CONDOR_3)
+            condorFolderPath = Paths.get(userHome, "Documents", "Condor3");
         else
-            throw new RuntimeException("Unknown Condor Version: " + condorVersion.toString());
+            condorFolderPath = Paths.get(userHome, "Documents", "Condor");
+
+        if (!Files.exists(condorFolderPath) && Files.isDirectory(condorFolderPath))
+        {
+            condorFolderPath = null;
+        }
+        return condorFolderPath;
+
+    }
+
+    static Path getCondorFolderPath(CondorVersion condorVersion)
+    {
+
+        Path condorPath = getDefaultCondorDirectory(condorVersion);
+        if (condorPath == null)
+            throw new RuntimeException("The correct version of Condor is not installed for the task.");
+
+        return condorPath;
+
     }
 
     private Path createOrTestTaskGhostFolder()

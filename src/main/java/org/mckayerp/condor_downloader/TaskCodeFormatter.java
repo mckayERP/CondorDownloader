@@ -5,14 +5,18 @@ import javafx.util.StringConverter;
 
 import java.util.function.UnaryOperator;
 
-public class TaskCodeFormatter extends TextFormatter<String> {
+public class TaskCodeFormatter extends TextFormatter<String>
+{
 
-    static final UnaryOperator<Change> codeFilter = change -> {
+    static final UnaryOperator<Change> codeFilter = change ->
+    {
         String newText = change.getControlNewText();
-        if (newText.trim().matches("([a-z,A-Z]*)?")) {
+        if (newText.trim().matches("([a-z,A-Z]*)?"))
+        {
             change.setText(change.getText().trim().toUpperCase());
             return change;
-        } else {
+        } else
+        {
             change.setRange(0, 0);
         }
         return null;
@@ -33,7 +37,8 @@ public class TaskCodeFormatter extends TextFormatter<String> {
         }
     };
 
-    public TaskCodeFormatter() {
+    public TaskCodeFormatter()
+    {
         super(converter, "", codeFilter);
     }
 

@@ -1,68 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox prefHeight="291.0" prefWidth="745.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.mckayerp.condor_downloader.Controller">
-    <MenuBar fx:id="menuBar">
-        <Menu text="File">
-            <MenuItem onAction="#handleMenuItemRemoveGhostFilesFromFlightTrackFolder"
-                      text="Clean up flight track folder"/>
-            <SeparatorMenuItem/>
-            <MenuItem onAction="#handleMenuItemFileExit" text="Exit"/>
-        </Menu>
-        <Menu text="Settings">
-            <MenuItem onAction="#handleMenuItemFileEditSettings" text="Edit settings"/>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-            <MenuItem onAction="#handleMenuItemShowHelpContent" text="Help content"/>
-            <MenuItem onAction="#handleMenuItemHelpAbout" text="About"/>
-        </Menu>
-    </MenuBar>
-    <GridPane fx:id="mainGridPane" alignment="center" hgap="10" vgap="10">
 
-        <padding>
-            <Insets bottom="10.0" left="25.0" right="25.0" top="10.0"/>
-        </padding>
-        <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" minWidth="210.0"/>
-            <ColumnConstraints hgrow="ALWAYS" maxWidth="270.0" minWidth="96.0" prefWidth="96.0"/>
-            <ColumnConstraints hgrow="ALWAYS" maxWidth="470.0" minWidth="10.0" prefWidth="261.0"/>
-            <ColumnConstraints maxWidth="157.0" minWidth="29.0" prefWidth="157.0"/>
-            <ColumnConstraints/>
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints/>
-            <RowConstraints/>
-            <RowConstraints/>
-            <RowConstraints/>
-            <RowConstraints minHeight="100.0" prefHeight="100.0"/>
-            <RowConstraints/>
-        </rowConstraints>
-
-        <Label text="Condor Club Task ID:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"/>
-        <TextField fx:id="taskCodeField" maxWidth="80.0" prefWidth="80.0" promptText="ABCDE"
-                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <CheckBox fx:id="downloadFlightPlanCheckbox" mnemonicParsing="false" text="Download Flight Plan"
-                  GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-
-        <Label text="Number of ghost tracks to download:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
-               GridPane.rowIndex="1"/>
-        <TextField fx:id="numberToDownloadField" alignment="CENTER_RIGHT" maxWidth="60.0" prefWidth="60.0" text="5"
-                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <CheckBox fx:id="copyGhostsFromCompetition" selected="true" text="Use competition results (if any)"
-                  GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-
-
-        <CheckBox fx:id="copyGhostsToFlightTrackFolderCheckBox" selected="true"
-                  text="Copy ghosts to flight track folder" GridPane.columnIndex="2" GridPane.columnSpan="2"
-                  GridPane.rowIndex="2"/>
-        <Button fx:id="downloadButton" disable="true" text="Download" GridPane.columnIndex="1"
-                GridPane.rowIndex="3"/>
-        <TextArea fx:id="statusText" editable="false" focusTraversable="false" minHeight="100.0" prefHeight="64.0"
-                  prefWidth="685.0" promptText="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7"
-                  text="a&#10;b&#10;c&#10;d&#10;e&#10;f&#10;g&#9;&#10;2&#10;3&#10;4" wrapText="true"
-                  GridPane.columnSpan="4" GridPane.hgrow="NEVER" GridPane.rowIndex="4" GridPane.vgrow="NEVER"/>
-    </GridPane>
+<VBox prefHeight="350.0" prefWidth="745.0" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.mckayerp.condor_downloader.Controller">
+   <children>
+       <MenuBar fx:id="menuBar">
+          <menus>
+              <Menu text="File">
+                 <items>
+                     <MenuItem onAction="#handleMenuItemRemoveGhostFilesFromFlightTrackFolder" text="Clean up flight track folder" />
+                     <SeparatorMenuItem />
+                     <MenuItem onAction="#handleMenuItemFileExit" text="Exit" />
+                 </items>
+              </Menu>
+              <Menu text="Settings">
+                 <items>
+                     <MenuItem onAction="#handleMenuItemFileEditSettings" text="Edit settings" />
+                 </items>
+              </Menu>
+              <Menu mnemonicParsing="false" text="Help">
+                 <items>
+                     <MenuItem onAction="#handleMenuItemShowHelpContent" text="Help content" />
+                     <MenuItem onAction="#handleMenuItemHelpAbout" text="About" />
+                 </items>
+              </Menu>
+          </menus>
+       </MenuBar>
+       <GridPane fx:id="mainGridPane" alignment="center" hgap="10" prefHeight="467.0" prefWidth="745.0" vgap="10">
+   
+           <padding>
+               <Insets bottom="10.0" left="25.0" right="25.0" top="10.0" />
+           </padding>
+           <columnConstraints>
+               <ColumnConstraints hgrow="ALWAYS" minWidth="210.0" />
+               <ColumnConstraints hgrow="ALWAYS" maxWidth="270.0" minWidth="96.0" prefWidth="96.0" />
+               <ColumnConstraints hgrow="ALWAYS" maxWidth="470.0" minWidth="10.0" prefWidth="261.0" />
+               <ColumnConstraints maxWidth="157.0" minWidth="29.0" prefWidth="157.0" />
+               <ColumnConstraints />
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="200.0" prefHeight="400.0" vgrow="ALWAYS" />
+           </rowConstraints>
+          <children>
+      
+              <Label text="Condor Club Task ID:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" />
+              <TextField fx:id="taskCodeField" maxWidth="80.0" prefWidth="80.0" promptText="ABCDE" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+              <CheckBox fx:id="downloadFlightPlanCheckbox" mnemonicParsing="false" text="Download Flight Plan" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+      
+              <Label text="Number of ghost tracks to download:" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+              <TextField fx:id="numberToDownloadField" alignment="CENTER_RIGHT" maxWidth="80.0" prefWidth="80.0" text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+              <CheckBox fx:id="copyGhostsFromCompetition" selected="true" text="Use competition results (if any)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+              <CheckBox fx:id="copyGhostsToFlightTrackFolderCheckBox" selected="true" text="Copy ghosts to flight track folder" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+              <Button fx:id="downloadButton" disable="true" text="Download" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+              <TextArea fx:id="statusText" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" minHeight="200.0" prefHeight="300.0" prefWidth="685.0" wrapText="true" GridPane.columnSpan="4" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="4" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
+          </children>
+       </GridPane>
+   </children>
 </VBox>

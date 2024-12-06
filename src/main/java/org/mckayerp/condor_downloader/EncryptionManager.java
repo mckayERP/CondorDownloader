@@ -14,11 +14,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 // Taken from https://stackoverflow.com/questions/1132567/encrypt-password-in-configuration-files
-public class EncryptionManager {
+public class EncryptionManager
+{
 
     private static SecretKeySpec key = null;
 
-    public EncryptionManager() throws Exception {
+    public EncryptionManager() throws Exception
+    {
 
         // The salt (probably) can be stored along with the encrypted data
         byte[] salt = "12345678".getBytes();
@@ -36,7 +38,13 @@ public class EncryptionManager {
         }
     }
 
-    private SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private static byte[] base64Decode(String property)
+    {
+        return Base64.getDecoder().decode(property);
+    }
+
+    private SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength) throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
         PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
         SecretKey keyTmp = keyFactory.generateSecret(keySpec);
@@ -63,12 +71,8 @@ public class EncryptionManager {
         return new String(pbeCipher.doFinal(base64Decode(property)), StandardCharsets.UTF_8);
     }
 
-    private String base64Encode(byte[] bytes) {
-        return Base64.getEncoder().encodeToString(bytes);
-    }
-
-    private static byte[] base64Decode(String property)
+    private String base64Encode(byte[] bytes)
     {
-        return Base64.getDecoder().decode(property);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }

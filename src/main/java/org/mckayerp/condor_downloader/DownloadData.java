@@ -36,14 +36,6 @@ public interface DownloadData
 
     String getCondorClubUserPassword();
 
-    Path getCondor2Path();
-
-    DownloadData withCondor2Path(Path path);
-
-    Path getCondor3Path();
-
-    DownloadData withCondor3Path(Path path);
-
     boolean isDownloadFlightPlanSelected();
 
     DownloadData withDownloadFligthPlanSelected(boolean selected);

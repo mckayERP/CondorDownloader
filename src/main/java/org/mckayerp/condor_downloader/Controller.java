@@ -1,7 +1,6 @@
 package org.mckayerp.condor_downloader;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -11,12 +10,14 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
+import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
+import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_3;
+import static org.mckayerp.condor_downloader.DownloadManager.getCondorFolderPath;
 
 public class Controller implements Initializable, StatusProvider
 {
@@ -47,8 +48,6 @@ public class Controller implements Initializable, StatusProvider
     {
 
         logger.log(Level.FINE, "Initializing the Controller.");
-        statusText.maxHeightProperty().bind(Bindings.createDoubleBinding(() -> statusText.getFont().getSize() * 5, statusText.fontProperty()));
-        statusText.minHeightProperty().bind(Bindings.createDoubleBinding(() -> statusText.getFont().getSize() * 5, statusText.fontProperty()));
 
         NumberFieldFormatter numberFieldFormatter = new NumberFieldFormatter();
         numberToDownload = 5;
@@ -79,10 +78,7 @@ public class Controller implements Initializable, StatusProvider
             }
         });
 
-        downloadFlightPlanCheckbox.setOnAction(actionEvent ->
-        {
-            enableDownloadButton();
-        });
+        downloadFlightPlanCheckbox.setOnAction(actionEvent -> enableDownloadButton());
 
         downloadButton.setOnAction(actionEvent ->
         {
@@ -141,7 +137,7 @@ public class Controller implements Initializable, StatusProvider
     public void handleMenuItemRemoveGhostFilesFromFlightTrackFolder(ActionEvent ignoredActionEvent)
     {
         logger.log(Level.FINE, "File menu Remove ghost files called. Cleaning up the flight track folder.");
-        GhostFileManager.deleteGhostFiles(getData());
+        GhostFileManager.deleteGhostFiles();
     }
 
     public void handleMenuItemShowHelpContent(ActionEvent ignoredActionEvent)
@@ -164,17 +160,28 @@ public class Controller implements Initializable, StatusProvider
 
     DownloadData getData()
     {
-        return new CondorDownloadData().withNumberToDownload(numberToDownload).withTaskCode(taskCode).withFirefoxExecutablePath(firefoxPath).withCondor2DirectoryExists(condor2DirectoryExists).withCondor3DirectoryExists(condor3DirectoryExists).withCondorClubUserEmail(settingsController.getCondorClubUserEmail()).withCondorClubUserPassword(settingsController.getCondorClubUserPassword()).withCondor2Path(settingsController.getCondor2FolderPath()).withCondor3Path(settingsController.getCondor3FolderPath()).withDownloadFligthPlanSelected(downloadFlightPlanCheckbox.isSelected()).withCopyGhostsToFlightTrackFolderSelected(copyGhostsToFlightTrackFolderCheckBox.isSelected()).withCopyGhostsFromCompetitionSelected(copyGhostsFromCompetition.isSelected()).withStatusProvider(this);
+        // @formatter:off
+        return new CondorDownloadData()
+                .withNumberToDownload(numberToDownload)
+                .withTaskCode(taskCode)
+                .withFirefoxExecutablePath(firefoxPath)
+                .withCondor2DirectoryExists(condor2DirectoryExists)
+                .withCondor3DirectoryExists(condor3DirectoryExists)
+                .withCondorClubUserEmail(settingsController.getCondorClubUserEmail())
+                .withCondorClubUserPassword(settingsController.getCondorClubUserPassword())
+                .withDownloadFligthPlanSelected(downloadFlightPlanCheckbox.isSelected())
+                .withCopyGhostsToFlightTrackFolderSelected(copyGhostsToFlightTrackFolderCheckBox.isSelected())
+                .withCopyGhostsFromCompetitionSelected(copyGhostsFromCompetition.isSelected())
+                .withStatusProvider(this);
+        // @formatter:on
     }
 
     private void updateAndCheckSettings()
     {
         firefoxPath = settingsController.getFirefoxExecutablePath();
         firefoxPathIsBad = FireFoxFinder.get().fireFoxPathIsBad(firefoxPath);
-        Path condor2FolderPath = settingsController.getCondor2FolderPath();
-        Path condor3FolderPath = settingsController.getCondor3FolderPath();
-        condor2DirectoryExists = Files.exists(condor2FolderPath);
-        condor3DirectoryExists = Files.exists(condor3FolderPath);
+        condor2DirectoryExists = Files.exists(getCondorFolderPath(CONDOR_2));
+        condor3DirectoryExists = Files.exists(getCondorFolderPath(CONDOR_3));
 
         // @formatter:off
         if (firefoxPathIsBad)
@@ -183,22 +190,16 @@ public class Controller implements Initializable, StatusProvider
             updateStatus(Level.SEVERE, "Error: The path to the Firefox executable is not defined or does not point at " +
                     "an executable file.  Please ensure Firefox is installed and the path to the executable is " +
                     "defined in the settings.");
-            return ;
         }
         if (!condor2DirectoryExists)
         {
-            clearStatus();
-            updateStatus(Level.WARNING, "The Condor directory does not exist for the Condor2 version. " +
-                    "Please edit settings and select the Condor directory, typically Documents\\Condor. Ignore this "
-                    + "warning if Condor2 is not installed.", true, true);
-            return ;
+            updateStatus(Level.WARNING, "Condor 2 does not appear to be installed. You will " +
+                    "not be able to download Condor3 tasks or flight tracks.", true, true);
         }
         if (!condor3DirectoryExists)
         {
-            clearStatus();
-            updateStatus(Level.WARNING, "The Condor directory does not exist for the Condor3 version. " +
-                    "Please edit settings and select the Condor directory, typically Documents\\Condor3. " +
-                    "Ignore this warning if Condor3 is not installed.", true, true);
+            updateStatus(Level.WARNING, "Condor3 does not appear to be installed. You will " +
+                    "not be able to download Condor3 tasks or flight tracks.", true, true);
         }
         // @formatter:on
     }

@@ -9,7 +9,8 @@ public class WindowsRegistryTest
 {
 
     @Test
-    public final void testRegistrySearch() {
+    public final void testRegistrySearch()
+    {
 
         String output = readRegistry("HKLM\\SOFTWARE\\MOZILLA\\MOZILLA FIREFOX", "PathToExe", "/s");
         assertEquals("C:\\Program Files\\Mozilla Firefox\\firefox.exe", output);

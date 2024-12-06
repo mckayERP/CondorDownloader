@@ -26,4 +26,5 @@ public class FireFoxFinderTest
         doReturn(null).when(fireFoxFinder).getFromRegistry(any(), any(), any());
         assertEquals("Select the path to firefox.exe", fireFoxFinder.getPathToExe());
     }
+
 }

@@ -10,12 +10,16 @@ import javafx.stage.Window;
 import java.io.IOException;
 import java.util.Objects;
 
-public class SettingsDialog extends Dialog<Boolean> {
+public class SettingsDialog extends Dialog<Boolean>
+{
 
     private final SettingsDialogController controller;
-    public SettingsDialog(Window owner) {
 
-        try {
+    public SettingsDialog(Window owner)
+    {
+
+        try
+        {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("SettingsDialog.fxml"));
             DialogPane dialogPane = loader.load();
@@ -29,16 +33,16 @@ public class SettingsDialog extends Dialog<Boolean> {
             setDialogPane(dialogPane);
             setResultConverter(buttonType -> !Objects.equals(ButtonBar.ButtonData.OK_DONE, buttonType.getButtonData()));
 
-        }
-        catch (IOException e) {
+        } catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
-    public SettingsDialogController getController() {
+    public SettingsDialogController getController()
+    {
         return controller;
     }
-
 
 
 }

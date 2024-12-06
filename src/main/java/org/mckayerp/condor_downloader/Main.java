@@ -15,6 +15,13 @@ public class Main extends Application
 
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
+    public static void main(String[] args)
+    {
+
+        launch(args);
+
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception
     {
@@ -33,14 +40,6 @@ public class Main extends Application
         primaryStage.setTitle("Condor Downloader");
         primaryStage.setScene(scene);
         primaryStage.show();
-
-    }
-
-
-    public static void main(String[] args)
-    {
-
-        launch(args);
 
     }
 }

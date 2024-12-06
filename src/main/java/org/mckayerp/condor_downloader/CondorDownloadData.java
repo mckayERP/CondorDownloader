@@ -9,8 +9,6 @@ public class CondorDownloadData implements DownloadData
     int numberToDownload = 0;
     String taskCode = null;
     private Path firefoxPath;
-    private Path condor2Path;
-    private Path condor3Path;
     private StatusProvider statusProvider;
     private boolean condor2DirectoryExists;
     private boolean condor3DirectoryExists;
@@ -121,32 +119,6 @@ public class CondorDownloadData implements DownloadData
     public DownloadData withCondorClubUserPassword(String password)
     {
         condorClubUserPassword = password;
-        return this;
-    }
-
-    @Override
-    public Path getCondor2Path()
-    {
-        return condor2Path;
-    }
-
-    @Override
-    public DownloadData withCondor2Path(Path path)
-    {
-        this.condor2Path = path;
-        return this;
-    }
-
-    @Override
-    public Path getCondor3Path()
-    {
-        return condor3Path;
-    }
-
-    @Override
-    public DownloadData withCondor3Path(Path path)
-    {
-        this.condor3Path = path;
         return this;
     }
 

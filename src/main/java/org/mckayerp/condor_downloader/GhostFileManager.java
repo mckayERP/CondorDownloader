@@ -5,6 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
+import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
+import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_3;
+import static org.mckayerp.condor_downloader.DownloadManager.getCondorFolderPath;
+
 public class GhostFileManager
 {
 
@@ -38,12 +42,13 @@ public class GhostFileManager
         }
     }
 
-    public static void deleteGhostFiles(DownloadData data)
+    public static void deleteGhostFiles()
     {
-        if (data.doesCondor2DirectoryExist())
-            deleteGhostFiles(data.getCondor2Path().resolve("FlightTracks"));
-        if (data.doesCondor3DirectoryExist())
-            deleteGhostFiles(data.getCondor3Path().resolve("FlightTracks"));
+        if (Files.exists(getCondorFolderPath(CONDOR_2)))
+            deleteGhostFiles(getCondorFolderPath(CONDOR_2).resolve("FlightTracks"));
+        if (Files.exists(getCondorFolderPath(CONDOR_3)))
+            deleteGhostFiles(getCondorFolderPath(CONDOR_3).resolve("FlightTracks"));
+
     }
 
     public static void deleteGhostFiles(Path directoryPath)

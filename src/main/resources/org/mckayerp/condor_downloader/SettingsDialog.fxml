@@ -18,18 +18,6 @@
             <TextField fx:id="firefoxExecutablePathField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             <Button fx:id="firefoxPathBrowseButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
 
-            <Label text="Condor2 Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4"/>
-            <TextField fx:id="condor2FolderField" editable="false"
-                       promptText="Enter or browse to select the Condor 2 folder" GridPane.columnIndex="1"
-                       GridPane.rowIndex="4"/>
-            <Button fx:id="browse2CondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
-
-            <Label text="Condor3 Folder" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5"/>
-            <TextField fx:id="condor3FolderField" editable="false"
-                       promptText="Enter or browse to select the Condor 3 folder" GridPane.columnIndex="1"
-                       GridPane.rowIndex="5"/>
-            <Button fx:id="browse3CondorDirectoryButton" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
-
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" minWidth="210.0"/>
                 <ColumnConstraints hgrow="ALWAYS" maxWidth="600.0" minWidth="100.0" prefWidth="350.0"/>

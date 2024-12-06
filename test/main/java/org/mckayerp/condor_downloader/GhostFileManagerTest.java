@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GhostFileManagerTest {
+public class GhostFileManagerTest
+{
 
     @Test
-    final void givenAZipFileName_ReturnsGhostFileName() {
+    final void givenAZipFileName_ReturnsGhostFileName()
+    {
         String zipFileName = "TNS Ronan to Glacier National Park Montana-T3X-263690.zip";
         String taskCode = "EQUHAC";
         String ghostID = "263690";
