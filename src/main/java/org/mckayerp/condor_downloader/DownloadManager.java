@@ -316,16 +316,20 @@ public class DownloadManager
             {
                 try
                 {
+                    String fileName = sourceFile.toFile().getName();
+                    String newFileName = taskCode + "_" + fileName;
+                    String alternateName = fileName.substring(0,fileName.indexOf(".fpl")) + "_" + taskCode + ".fpl";
                     destFile[0] = destDir.resolve(sourceDir.relativize(sourceFile));
                     Files.createDirectories(destFile[0].getParent());
-                    Files.move(sourceFile, destFile[0], REPLACE_EXISTING);
+                    Files.copy(sourceFile, Paths.get(destFile[0].getParent().toString(),alternateName), REPLACE_EXISTING);
+                    Files.move(sourceFile, Paths.get(destFile[0].getParent().toString(),newFileName), REPLACE_EXISTING);
                 } catch (IOException e)
                 {
                     statusProvider.updateStatus(Level.WARNING, "Failed to move file: " + e.getMessage());
                 }
             });
 
-            statusProvider.updateStatus("Flight plan downloaded successfully to " + destFile[0]);
+            statusProvider.updateStatus("Flight plan downloaded successfully.");
         } catch (IOException e)
         {
             statusProvider.updateStatus(Level.WARNING, "Failed to walk the ghost folder path: " + e.getMessage());
