@@ -6,7 +6,7 @@
 
     <groupId>org.mckayERP</groupId>
     <artifactId>condor_downloader</artifactId>
-    <version>1.0.01-SNAPSHOT</version>
+    <version>1.0.02-SNAPSHOT</version>
     <name>condor_downloader</name>
 
     <properties>
@@ -102,7 +102,7 @@
                                       overwrite="true"/>
                                 <unzip src="${project.build.directory}/${gecko.driver.zip.file}"
                                        dest="${project.build.directory}/${jlink-image-name}/bin/drivers/geckodriver"/>
-                                <zip destfile="${project.build.directory}/${jlink-image-name}.zip">
+                                <zip destfile="${project.build.directory}/${jlink-image-name}-${version}.zip">
                                     <zipfileset dir="${project.build.directory}" includes="${jlink-image-name}/**"/>
                                 </zip>
                                 <delete file="${project.build.directory}/${gecko.driver.zip.file}"/>
