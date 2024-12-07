@@ -96,6 +96,10 @@
                                 <delete file="${project.build.directory}/${jlink-image-name}.zip"/>
                                 <copy file="src/main/resources/org/mckayerp/condor_downloader/${gecko.driver.zip.file}"
                                       tofile="${project.build.directory}/${gecko.driver.zip.file}"/>
+                                <!-- ?>delete file="${project.build.directory}/${jlink-image-name}/conf/logging.properties"/-->
+                                <copy file="src/main/resources/org/mckayerp/condor_downloader/logging.properties"
+                                      tofile="${project.build.directory}/${jlink-image-name}/conf/logging.properties"
+                                      overwrite="true"/>
                                 <unzip src="${project.build.directory}/${gecko.driver.zip.file}"
                                        dest="${project.build.directory}/${jlink-image-name}/bin/drivers/geckodriver"/>
                                 <zip destfile="${project.build.directory}/${jlink-image-name}.zip">
