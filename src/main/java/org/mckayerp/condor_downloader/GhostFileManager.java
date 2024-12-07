@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
 import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_3;
-import static org.mckayerp.condor_downloader.DownloadManager.getCondorFolderPath;
 
 public class GhostFileManager
 {
@@ -46,10 +45,9 @@ public class GhostFileManager
 
     public static void deleteGhostFiles()
     {
-        if (Files.exists(getCondorFolderPath(CONDOR_2)))
-            deleteGhostFiles(getCondorFolderPath(CONDOR_2).resolve("FlightTracks"));
-        if (Files.exists(getCondorFolderPath(CONDOR_3)))
-            deleteGhostFiles(getCondorFolderPath(CONDOR_3).resolve("FlightTracks"));
+
+        deleteGhostFiles(ApplicationFolderManager.getFlightTracksFolder(CONDOR_2));
+        deleteGhostFiles(ApplicationFolderManager.getFlightTracksFolder(CONDOR_3));
 
     }
 
@@ -60,11 +58,11 @@ public class GhostFileManager
             files.filter(path -> path.getParent().equals(directoryPath) && path.toFile().getName().startsWith("Ghost_") && (path.toFile().getName().endsWith(".ftr") || path.toFile().getName().endsWith(".igc"))).forEach(path ->
             {
                 if (!path.toFile().delete())
-                    logger.log(Level.WARNING,"Couldn't delete file " + path);
+                    logger.log(Level.WARNING, "Couldn't delete file " + path);
             });
         } catch (IOException e)
         {
-            logger.log(Level.WARNING,"Couldn't delete ghost .ftr and .igc files: " + e);
+            logger.log(Level.WARNING, "Couldn't delete ghost .ftr and .igc files: " + e);
         }
     }
 

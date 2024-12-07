@@ -9,15 +9,11 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
-import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
-import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_3;
-import static org.mckayerp.condor_downloader.DownloadManager.getCondorFolderPath;
 
 public class Controller implements Initializable, StatusProvider
 {
@@ -180,8 +176,8 @@ public class Controller implements Initializable, StatusProvider
     {
         firefoxPath = settingsController.getFirefoxExecutablePath();
         firefoxPathIsBad = FireFoxFinder.get().fireFoxPathIsBad(firefoxPath);
-        condor2DirectoryExists = Files.exists(getCondorFolderPath(CONDOR_2));
-        condor3DirectoryExists = Files.exists(getCondorFolderPath(CONDOR_3));
+        condor2DirectoryExists = ApplicationFolderManager.condor2DirectoryExists();
+        condor3DirectoryExists = ApplicationFolderManager.condor3DirectoryExists();
 
         // @formatter:off
         if (firefoxPathIsBad)

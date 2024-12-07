@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.Objects.requireNonNull;
 import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_2;
 import static org.mckayerp.condor_downloader.CondorVersion.CONDOR_3;
 import static org.mckayerp.condor_downloader.GhostFileManager.extractGhostFilesFromZipFiles;
@@ -42,9 +41,8 @@ public class DownloadManager
     private CondorVersion condorVersion;
     private boolean condor2DirectoryExists;
     private boolean condor3DirectoryExists;
-    private Path condorFolderPath;
     private Path ghostFolderPath;
-    private Path taskGhostFolderPath;
+    private Path ghostTaskFolder;
     private boolean flightPlanSelected;
     private boolean isCopyGhostsToFlightTrackFolderSelected;
     private boolean isCopyGhostsFromCompetitionSelected;
@@ -77,7 +75,7 @@ public class DownloadManager
         GeckoDriverManager.setup();
         logger.log(Level.FINE, "->download()");
         setup();
-        createOrClearTmpFolder();
+        downloadDirectory = ApplicationFolderManager.createOrClearTmpFolder();
         statusProvider.updateStatus("Starting download...", true, false);
         WebDriver driver = getWebDriver();
         if (getTaskPageAndLogIn(driver))
@@ -106,17 +104,6 @@ public class DownloadManager
         flightPlanSelected = downloadData.isDownloadFlightPlanSelected();
         isCopyGhostsToFlightTrackFolderSelected = downloadData.isCopyGhostsToFlightTrackFolderSelected();
         isCopyGhostsFromCompetitionSelected = downloadData.isCopyGhostsFromCompetitionSelected();
-    }
-
-    private void createOrClearTmpFolder()
-    {
-        String userHome = System.getProperty("user.dir");
-        downloadDirectory = Paths.get(userHome, "Condor_tmp");
-        if (downloadDirectory.toFile().exists() && downloadDirectory.toFile().isDirectory())
-        {
-            FolderUtilities.deleteFolderContents(downloadDirectory.toFile());
-        } else if (!downloadDirectory.toFile().mkdir())
-            statusProvider.updateStatus(Level.SEVERE, "Did not manage to create temporary download directory " + downloadDirectory.toString());
     }
 
     private boolean getTaskPageAndLogIn(WebDriver driver)
@@ -153,9 +140,8 @@ public class DownloadManager
         if (!logInFromTaskPage(driver))
             return false;
 
-        condorFolderPath = getCondorFolderPath(condorVersion);
-        ghostFolderPath = condorFolderPath.resolve("FlightTracks/Ghosts");
-        taskGhostFolderPath = createOrTestTaskGhostFolder();
+        ghostFolderPath = ApplicationFolderManager.getGhostFolder(condorVersion);
+        ghostTaskFolder = ApplicationFolderManager.getGhostTaskFolder(condorVersion, taskCode);
 
         return true;
 
@@ -261,71 +247,30 @@ public class DownloadManager
     private boolean versionIsNotCompatible()
     {
 
-        if (condorVersion == CONDOR_2 && !condor2DirectoryExists || condorVersion == CONDOR_3 && !condor3DirectoryExists)
+        // @formatter:off
+        if (condorVersion == CONDOR_2 && !condor2DirectoryExists
+                || condorVersion == CONDOR_3 && !condor3DirectoryExists)
         {
             warnIncompatibleVersion(condorVersion);
             return true;
         }
         return false;
+        // @formatter:on
     }
 
     private void warnIncompatibleVersion(CondorVersion version)
     {
-        String warning = "The task selected is version * but it does not seem Condor * is " + "installed. Please check the settings and try again or choose a task compatible with the " + "installed version of Condor.";
+        String warning = "The task selected is version * but it does not seem Condor * is " +
+                "installed. Please check the settings and try again or choose a task compatible with the " +
+                "installed version of Condor.";
         String versionNumber = version == CONDOR_2 ? "2" : "3";
         statusProvider.clearStatus();
         statusProvider.updateStatus(Level.WARNING, warning.replace("*", versionNumber));
     }
 
-    static Path getDefaultCondorDirectory(CondorVersion version)
-    {
-
-        String userHome = System.getProperty("user.home");
-        Path condorFolderPath;
-        if (version == CONDOR_3)
-            condorFolderPath = Paths.get(userHome, "Documents", "Condor3");
-        else
-            condorFolderPath = Paths.get(userHome, "Documents", "Condor");
-
-        if (!Files.exists(condorFolderPath) && Files.isDirectory(condorFolderPath))
-        {
-            condorFolderPath = null;
-        }
-        return condorFolderPath;
-
-    }
-
-    static Path getCondorFolderPath(CondorVersion condorVersion)
-    {
-
-        Path condorPath = getDefaultCondorDirectory(condorVersion);
-        if (condorPath == null)
-            throw new RuntimeException("The correct version of Condor is not installed for the task.");
-
-        return condorPath;
-
-    }
-
-    private Path createOrTestTaskGhostFolder()
-    {
-        Path newGhostDirectoryPath = Paths.get(ghostFolderPath.toString(), taskCode);
-        try
-        {
-            Files.createDirectories(newGhostDirectoryPath);
-        } catch (IOException e)
-        {
-            statusProvider.updateStatus(Level.WARNING, "Could not create or find the ghost folder path " + ghostFolderPath.toString() + "\n" + e);
-            throw new RuntimeException(e);
-        }
-        return newGhostDirectoryPath;
-    }
 
     public void downloadFlightPlan(WebDriver driver)
     {
-
-        requireNonNull(condorFolderPath);
-        if (!condorFolderPath.toFile().exists())
-            throw new RuntimeException("Condor folder does not exist: " + condorFolderPath);
 
         statusProvider.updateStatus("Downloading the flight plan...");
         String currentURL = driver.getCurrentUrl();
@@ -342,7 +287,8 @@ public class DownloadManager
         boolean downloadPossible = taskPageSource.contains("Download it now!");
         if (!downloadPossible)
         {
-            statusProvider.updateStatus("The flight plan can't be downloaded. It may be active in a competition.");
+            statusProvider.updateStatus("The flight plan can't be downloaded. It may be active in a competition " +
+                    "or not available yet.");
             driver.navigate().to(currentURL);
             return;
         }
@@ -358,10 +304,11 @@ public class DownloadManager
         if (waitForDownload(downloadDirectory, ".fpl"))
             statusProvider.updateStatus("Downloaded flight plan for task " + taskCode + "...");
         else
-            statusProvider.updateStatus("Unable to downloaded flight plan for task " + taskCode + ". A timeout occurred.");
+            statusProvider.updateStatus("Unable to downloaded flight plan for task " + taskCode +
+                    ". A timeout occurred.");
 
         Path sourceDir = downloadDirectory;
-        Path destDir = Paths.get(condorFolderPath.toString(), "FlightPlans");
+        Path destDir = ApplicationFolderManager.getFlightPlanFolder(condorVersion);
         Path[] destFile = {null};
         try (Stream<Path> paths = Files.walk(sourceDir))
         {
@@ -443,10 +390,10 @@ public class DownloadManager
         else
             statusProvider.updateStatus("Was able to downloaded " + count[0] + " ghost flight track" + (count[0] > 1 ? "s..." : "..."));
 
-        extractGhostFilesFromZipFiles(downloadDirectory, taskGhostFolderPath, taskCode);
+        extractGhostFilesFromZipFiles(downloadDirectory, ghostTaskFolder, taskCode);
         deleteZipFiles(downloadDirectory);
         if (isCopyGhostsToFlightTrackFolderSelected)
-            copyGhostFilesToFlightTrackFolder(taskGhostFolderPath);
+            copyGhostFilesToFlightTrackFolder(ghostTaskFolder);
     }
 
     private String getBestTimesForTask(WebDriver driver)
@@ -478,7 +425,7 @@ public class DownloadManager
     private void copyGhostFilesToFlightTrackFolder(Path sourceDir)
     {
 
-        Path destDir = Paths.get(condorFolderPath.toString(), "FlightTracks");
+        Path destDir = ApplicationFolderManager.getFlightTracksFolder(condorVersion);
         try (Stream<Path> paths = Files.walk(sourceDir))
         {
             paths.filter(Files::isRegularFile).forEach(sourceFile ->

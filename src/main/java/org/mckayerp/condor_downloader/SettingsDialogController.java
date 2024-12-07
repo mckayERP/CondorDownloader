@@ -188,7 +188,7 @@ public class SettingsDialogController implements Initializable
     private File getIniConfiguration()
     {
         File iniFile;
-        iniFile = Paths.get(System.getProperty("user.home"), INI_FILE).toFile();
+        iniFile = Paths.get(ApplicationFolderManager.getApplicationFolder().toString(), INI_FILE).toFile();
         return iniFile;
     }
 
