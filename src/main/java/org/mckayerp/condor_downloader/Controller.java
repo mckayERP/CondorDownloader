@@ -126,8 +126,7 @@ public class Controller implements Initializable, StatusProvider
     public void handleMenuItemFileExit(ActionEvent ignoredActionEvent)
     {
         logger.log(Level.FINE, "File menu exit called. Exiting the platform.");
-        GeckoDriverManager.kill();
-        Platform.exit();
+       exit();
     }
 
     public void handleMenuItemRemoveGhostFilesFromFlightTrackFolder(ActionEvent ignoredActionEvent)
@@ -218,5 +217,12 @@ public class Controller implements Initializable, StatusProvider
 
         });
 
+    }
+
+    public void exit()
+    {
+        logger.log(Level.INFO, "Exiting the application.");
+        GeckoDriverManager.kill();
+        Platform.exit();
     }
 }

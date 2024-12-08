@@ -212,11 +212,19 @@ public class DownloadManager
     CondorVersion getCondorVersion(WebDriver driver)
     {
         if (driver == null)
+        {
+            logger.log(Level.SEVERE, "Web driver is null.");
             throw new IllegalArgumentException("WebDriver cannot be null!");
+        }
 
         String pageSource = driver.getPageSource();
         if (pageSource == null)
-            throw new RuntimeException("Page source from the driver is null. Unable to determine what " + "the Condor version is.");
+        {
+            String errorMsg = "Page source from the driver is null. This could be timeout.  Please try again. " +
+                    "Without the page source, the app is unable to determine what the Condor version is.";
+            statusProvider.updateStatus(Level.SEVERE, errorMsg);
+            throw new RuntimeException(errorMsg);
+        }
 
         statusProvider.updateStatus("Determining the Condor version...");
         String tagString = "Condor version:";

@@ -7,8 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Main extends Application
@@ -19,6 +24,24 @@ public class Main extends Application
     public static void main(String[] args)
     {
 
+        Path propertiesPath = ApplicationFolderManager.getLoggerPropertiesPath();
+        if (propertiesPath.toFile().exists())
+        {
+            try (InputStream configFile = Files.newInputStream(propertiesPath))
+            {
+                LogManager.getLogManager().readConfiguration(configFile);
+                logger.log(Level.FINE, "Logger configured.");
+            } catch (IOException ex)
+            {
+                logger.log(Level.WARNING, "Could not open configuration file.");
+                System.out.println("WARNING: Logging not configured (console output only)");
+            }
+        }
+        else {
+            System.out.println("Failed.");
+            logger.log(Level.WARNING, "Could not open configuration file.");
+            System.out.println("WARNING: Logging not configured (console output only)");
+        }
         launch(args);
 
     }
@@ -44,6 +67,7 @@ public class Main extends Application
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_32x32.png")));
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_64x64.png")));
         primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(t -> controller.exit());
         primaryStage.show();
 
     }
