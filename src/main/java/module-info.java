@@ -8,6 +8,8 @@ module org.mckayerp.condor_downloader {
     requires dev.failsafe.core;
     requires org.apache.commons.configuration2;
     requires java.logging;
+    requires org.apache.commons.io;
+    requires org.commonmark;
 
     opens org.mckayerp.condor_downloader to javafx.fxml;
     exports org.mckayerp.condor_downloader;

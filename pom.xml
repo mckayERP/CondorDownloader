@@ -52,6 +52,16 @@
             <artifactId>commons-configuration2</artifactId>
             <version>2.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.24.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -94,6 +104,13 @@
                 <excludes>
                     <exclude>${gecko.driver.zip.file}</exclude>
                 </excludes>
+            </resource>
+            <resource>
+                <directory>.</directory>
+                <targetPath>${project.build.directory}/classes/org/mckayerp/condor_downloader</targetPath>
+                <includes>
+                    <include>README.md</include>
+                </includes>
             </resource>
         </resources>
         <plugins>
@@ -170,7 +187,6 @@
                         </goals>
                         <configuration>
                             <target>
-
                                 <echo message="Changing the exe icon."/>
                                 <exec executable="tools/rcedit.exe">
                                     <arg value="${project.build.directory}/${jlink-image-name}/bin/${jlink-image-name}.exe"/>

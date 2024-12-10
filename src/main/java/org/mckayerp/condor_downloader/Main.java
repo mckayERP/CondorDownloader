@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -58,14 +57,10 @@ public class Main extends Application
         logger.log(Level.FINE, "Loading controller.");
         Controller controller = loader.getController();
         controller.setSettingsDialog(new SettingsDialog(primaryStage));
-        controller.setHelpDialog(new HelpDialog());
 
         logger.log(Level.FINE, "Launching primary stage.");
         primaryStage.setTitle("Condor Downloader");
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_16x16.png")));
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_24x24.png")));
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_32x32.png")));
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("cdicon_64x64.png")));
+        IconAdder.addIcons(primaryStage);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(t -> controller.exit());
         primaryStage.show();

@@ -87,9 +87,7 @@ public class DownloadManager
             driver.close();
         }
         GeckoDriverManager.kill();
-        statusProvider.updateStatus("Download complete!  Enjoy the flight.");
-        statusProvider.updateStatus("Or, you can download a different task.");
-
+        statusProvider.updateStatus("Download complete.  Enjoy the flight!");
 
     }
 

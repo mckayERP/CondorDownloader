@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.web.WebView?>
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.25" xmlns="http://javafx.com/javafx/21"
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:id="stackPane"
+           xmlns="http://javafx.com/javafx"
            fx:controller="org.mckayerp.condor_downloader.HelpDialogController">
-    <ScrollPane hbarPolicy="NEVER" prefHeight="500.0" prefWidth="200.0">
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
-            <TreeView id="contentsTree" fx:id="helpContent" prefHeight="472.0" prefWidth="198.0"
-                      AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-        </AnchorPane>
-    </ScrollPane>
-    <WebView id="helpViewer" fx:id="helpViewer" prefHeight="500.0"/>
-</SplitPane>
+    <VBox maxHeight="Infinity" prefHeight="800">
+        <padding>
+            <Insets left="10.0" />
+        </padding>
+        <ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308"
+                    minHeight="200.0" prefHeight="800.0" minWidth="400.0" prefWidth="685.0"
+                    hbarPolicy="NEVER" fitToWidth="true">
+            <content>
+                <WebView fx:id="webView" />
+            </content>
+        </ScrollPane>
+    </VBox>
+</StackPane>

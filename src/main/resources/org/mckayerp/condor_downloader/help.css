@@ -1,0 +1,30 @@
+/* General settings for the page */
+body {
+    font-family: Segoe UI, Arial, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    margin: 20px;
+    line-height: 1.5;
+}
+
+/* Header styles */
+h1 {
+    font-size: 1.4em;
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 1.3em;
+    margin-bottom: 0.4em;
+}
+
+h3 {
+    font-size: 1.1em;
+    margin-bottom: 0.2em;
+}
+
+/* Paragraph styles */
+p {
+    font-size: 1em;
+    margin-bottom: 1em;
+}

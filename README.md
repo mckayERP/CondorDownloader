@@ -6,7 +6,7 @@ Condor.Club website, saving the user from the monotonous task of doing the same 
 
 # Limitations
 
-Condor Downloader is a stand-alone JavaFX application running on Windows only. It
+Condor Downloader is a JavaFX application running on Windows only. It
 requires the FireFox browser be installed.  
 
 The application will detect the user's Condor directories and only allow downloads 
@@ -17,8 +17,8 @@ use English as well.
 
 # Installation
 
-The utility will available as a zip file. The zip file can be extracted to any directory.
-The application is started by running the "Condor Downloader\condorDowloader.exe" file.
+The utility comes packaged as a zip file. The zip file can be extracted to any directory.
+The application is started by running the "Condor Downloader\condorDownloader.exe" file.
 
 # Instructions for Use
 
@@ -41,12 +41,12 @@ Code field of the utility.
 ## Flight Plan
 If you select the "Download Flight Plan", it will be downloaded to the Flight 
 Tracks folder for the compatible version of Condor. The file will be copied twice,
-with the task code as a prefix on one and a suffix on the other.  This makes it 
+with the task code used as a prefix on one and as a suffix on the other.  This makes it 
 easier to find the task when running Condor.  
 
 ## Flight Tracks
 You can choose to download the flight tracks of the best performances (results) by 
-entering a number in text box "Number of ghost tracks to download"  If you enter zero,
+entering a number in the text box labeled "Number of ghost tracks to download".  If you enter zero,
 no flight tracks will be downloaded.
 
 Only the top results are downloaded. If the task was used in a competition, you can 
@@ -71,8 +71,9 @@ to download" field.
 Clicking the button will start the download process.
 
 The status field below the button will provide updates on the progress. It will say 
-"Download complete!" when the process is completed.  If there is an error, the explanation
-should be provided.  In either case, you can try again with the same or another task.
+"Download complete. Enjoy the flight!" when the process is completed.  If there is an error, 
+the explanation should be provided.  For successful downloads or minor errors such as a 
+timeout, you can try to download again with the same or another task.
 
 ## Clean Up Flight Track Folder
 Under the File menu is a selection to "Clean up flight track folder." The menu selection

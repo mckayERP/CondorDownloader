@@ -3,10 +3,8 @@ package org.mckayerp.condor_downloader;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -100,11 +98,6 @@ public class Controller implements Initializable, StatusProvider
         updateAndCheckSettings();
     }
 
-    public void setHelpDialog(HelpDialog helpDialog)
-    {
-        this.helpDialog = helpDialog;
-    }
-
     private void enableDownloadButton()
     {
 
@@ -138,11 +131,8 @@ public class Controller implements Initializable, StatusProvider
     public void handleMenuItemShowHelpContent(ActionEvent ignoredActionEvent)
     {
         logger.log(Level.FINE, "File menu Help called. Displaying the Help dialog.");
-        Stage stage = new Stage();
-        stage.setTitle("My New Stage Title");
-        stage.setScene(new Scene(helpDialog, 450, 450));
-        stage.showAndWait();
-        stage.close();
+        helpDialog = new HelpDialog();
+        helpDialog.show();
     }
 
     public void handleMenuItemHelpAbout(ActionEvent ignoredActionEvent)

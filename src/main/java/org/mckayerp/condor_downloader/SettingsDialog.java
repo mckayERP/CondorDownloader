@@ -5,6 +5,7 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class SettingsDialog extends Dialog<Boolean>
             setTitle("Application Settings");
             setDialogPane(dialogPane);
             setResultConverter(buttonType -> !Objects.equals(ButtonBar.ButtonData.OK_DONE, buttonType.getButtonData()));
-
+            IconAdder.addIcons((Stage) getDialogPane().getScene().getWindow());
         } catch (IOException e)
         {
             throw new RuntimeException(e);
