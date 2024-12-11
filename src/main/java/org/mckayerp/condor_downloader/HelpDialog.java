@@ -30,9 +30,4 @@ public class HelpDialog extends Stage
         }
     }
 
-//    public HelpDialogController getController()
-//    {
-//        return controller;
-//    }
-
 }

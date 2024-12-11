@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:id="stackPane"
-           xmlns="http://javafx.com/javafx"
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.mckayerp.condor_downloader.HelpDialogController">
     <VBox maxHeight="Infinity" prefHeight="800">
         <padding>
-            <Insets left="10.0" />
+            <Insets bottom="5.0" left="5.0" right="5.0"/>
         </padding>
-        <ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308"
-                    minHeight="200.0" prefHeight="800.0" minWidth="400.0" prefWidth="685.0"
-                    hbarPolicy="NEVER" fitToWidth="true">
-            <content>
-                <WebView fx:id="webView" />
-            </content>
-        </ScrollPane>
+        <WebView fx:id="webView" prefHeight="-1.0" VBox.vgrow="ALWAYS"/>
     </VBox>
 </StackPane>
