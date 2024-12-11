@@ -78,6 +78,7 @@ public class Controller implements Initializable, StatusProvider
         {
             logger.log(Level.FINE, "Download button handle event detected. " + actionEvent);
             settingsController.saveSettings();
+            updateAndCheckSettings();
             clearStatus();
             DownloadManager downloader = new DownloadManager(getData());
             downloader.startInBackground();
@@ -101,7 +102,9 @@ public class Controller implements Initializable, StatusProvider
     private void enableDownloadButton()
     {
 
-        boolean enable = (numberToDownload > 0 || downloadFlightPlanCheckbox.isSelected()) && !taskCodeField.getText().isEmpty() && !firefoxPathIsBad && (condor2DirectoryExists || condor3DirectoryExists);
+        boolean enable = (numberToDownload > 0 || downloadFlightPlanCheckbox.isSelected())
+                && !taskCodeField.getText().isEmpty() && !firefoxPathIsBad
+                && (condor2DirectoryExists || condor3DirectoryExists);
         downloadButton.setDisable(!enable);
 
     }
@@ -176,15 +179,19 @@ public class Controller implements Initializable, StatusProvider
                     "an executable file.  Please ensure Firefox is installed and the path to the executable is " +
                     "defined in the settings.");
         }
-        if (!condor2DirectoryExists)
+        if (!condor2DirectoryExists && condor3DirectoryExists)
         {
-            updateStatus(Level.WARNING, "Condor 2 does not appear to be installed. You will " +
-                    "not be able to download Condor3 tasks or flight tracks.", true, true);
+            updateStatus("Condor 2 does not appear to be installed. You will " +
+                    "not be able to download Condor2 tasks or flight tracks.");
         }
-        if (!condor3DirectoryExists)
+        if (!condor3DirectoryExists && condor2DirectoryExists)
         {
-            updateStatus(Level.WARNING, "Condor3 does not appear to be installed. You will " +
-                    "not be able to download Condor3 tasks or flight tracks.", true, true);
+            updateStatus("Condor3 does not appear to be installed. You will " +
+                    "not be able to download Condor3 tasks or flight tracks.");
+        }
+        if (!condor3DirectoryExists && !condor2DirectoryExists)
+        {
+            updateStatus(Level.WARNING, "Can't find any Condor directories for any version in the Documents folder. Downloads won't be possible.");
         }
         // @formatter:on
     }
@@ -215,4 +222,5 @@ public class Controller implements Initializable, StatusProvider
         GeckoDriverManager.kill();
         Platform.exit();
     }
+
 }
