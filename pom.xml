@@ -18,7 +18,7 @@
         <jlink-image-name>CondorDownloaderBat</jlink-image-name>
         <warp-image-name>CondorDownloader</warp-image-name>
         <gecko.driver.zip.file>geckodriver-v0.35.0-win32.zip</gecko.driver.zip.file>
-        <cd-resources>src/main/resources/org/mckayerp/condor_downloader</cd-resources>
+        <cd-resources>src\main\resources\org\mckayerp\condor_downloader</cd-resources>
     </properties>
 
     <issueManagement>
@@ -93,6 +93,11 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.git-commit-id</groupId>
+            <artifactId>git-commit-id-maven-plugin</artifactId>
+            <version>9.0.1</version>
+        </dependency>
 
     </dependencies>
 
@@ -100,14 +105,14 @@
         <resources>
             <resource>
                 <directory>${cd-resources}</directory>
-                <targetPath>${project.build.directory}/classes/org/mckayerp/condor_downloader</targetPath>
+                <targetPath>${project.build.directory}\classes\org\mckayerp\condor_downloader</targetPath>
                 <excludes>
                     <exclude>${gecko.driver.zip.file}</exclude>
                 </excludes>
             </resource>
             <resource>
                 <directory>.</directory>
-                <targetPath>${project.build.directory}/classes/org/mckayerp/condor_downloader</targetPath>
+                <targetPath>${project.build.directory}\classes\org\mckayerp\condor_downloader</targetPath>
                 <includes>
                     <include>README.md</include>
                 </includes>
@@ -172,7 +177,7 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/${warp-image-name}"/>
+                                <mkdir dir="${project.build.directory}\${warp-image-name}"/>
                             </target>
                         </configuration>
                         <goals>
@@ -180,43 +185,35 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>wrap-project</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <echo message="Changing the exe icon."/>
-                                <exec executable="tools/rcedit.exe">
-                                    <arg value="${project.build.directory}/${jlink-image-name}/bin/${jlink-image-name}.exe"/>
-                                    <arg value="--set-icon"/>
-                                    <arg value="${cd-resources}/favicon.ico"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-geckodriver</id>
+                        <id>add-geckodriver-and-build-install-zip</id>
                         <phase>install</phase>
                         <configuration>
                             <target>
-                                <delete file="${project.build.directory}/${jlink-image-name}.zip"/>
-                                <copy file="src/main/resources/org/mckayerp/condor_downloader/${gecko.driver.zip.file}"
-                                      tofile="${project.build.directory}/${gecko.driver.zip.file}"/>
-                                <copy file="src/main/resources/org/mckayerp/condor_downloader/logging.properties"
+                                <delete file="${project.build.directory}\${jlink-image-name}.zip"/>
+                                <copy file="${project.basedir}\${cd-resources}\${gecko.driver.zip.file}"
+                                      tofile="${project.build.directory}\${gecko.driver.zip.file}"/>
+                                <copy file="${project.basedir}\${cd-resources}\logging.properties"
                                       tofile="${project.build.directory}/${jlink-image-name}/conf/logging.properties"
                                       overwrite="true"/>
-                                <copy file="src/main/resources/org/mckayerp/condor_downloader/logging.properties"
+                                <copy file="${project.basedir}\${cd-resources}\logging.properties"
                                       tofile="${project.build.directory}/${warp-image-name}/conf/logging.properties"
-                                      overwrite="true"/>
-                                <copy file="${project.build.directory}/${jlink-image-name}/bin/${jlink-image-name}.exe"
-                                      tofile="${project.build.directory}/${warp-image-name}/${warp-image-name}.exe"
                                       overwrite="true"/>
                                 <unzip src="${project.build.directory}/${gecko.driver.zip.file}"
                                        dest="${project.build.directory}/${jlink-image-name}/bin"/>
                                 <unzip src="${project.build.directory}/${gecko.driver.zip.file}"
                                        dest="${project.build.directory}/${warp-image-name}/bin/"/>
+                                <exec executable="tools/ResourceHacker.exe">
+                                    <arg value="-open" />
+                                    <arg value="${project.build.directory}\${jlink-image-name}\bin\${jlink-image-name}.exe"/>
+                                    <arg value="-save"/>
+                                    <arg value="${project.build.directory}\${warp-image-name}\${warp-image-name}.exe"/>
+                                    <arg value="-action"/>
+                                    <arg value="addskip"/>
+                                    <arg value="-res"/>
+                                    <arg value="${project.basedir}\${cd-resources}\favicon.ico"/>
+                                    <arg value="-mask" />
+                                    <arg value="ICONGROUP,MAINICON,"/>
+                                </exec>
                                 <zip destfile="${project.build.directory}/${jlink-image-name}-${project.version}.zip">
                                     <zipfileset dir="${project.build.directory}" includes="${jlink-image-name}/**"/>
                                 </zip>
@@ -284,6 +281,29 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.0.1</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${cd-resources}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
             </plugin>
         </plugins>
     </build>

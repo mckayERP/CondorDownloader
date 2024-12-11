@@ -1,7 +1,6 @@
 package org.mckayerp.condor_downloader;
 
 import javafx.fxml.Initializable;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -24,7 +23,6 @@ public class HelpDialogController implements Initializable
 {
 
     public StackPane stackPane;
-    public ScrollPane scrollPane;
     public WebView webView;
     Logger logger = Logger.getLogger(HelpDialogController.class.getName());
 
@@ -32,27 +30,28 @@ public class HelpDialogController implements Initializable
 
     public void loadHelpContent()
     {
-
-        String[] mdfxString = {""};
-        Optional.ofNullable(getClass().getResource("README.MD"))
+        logger.log(Level.FINE,"Loading help content");
+        String[] helpData = {""};
+        Optional.ofNullable(getClass().getResource("README.md"))
                 .ifPresent(readme -> {
-                    logger.fine("Loading help: " + readme);
+                    logger.log(Level.FINE,"Loading help: " + readme);
 
                     try {
-                        mdfxString[0] = IOUtils.toString(readme, StandardCharsets.UTF_8);
+                        helpData[0] = IOUtils.toString(readme, StandardCharsets.UTF_8);
                     } catch (IOException ex) {
                         logger.log(Level.SEVERE, "Error reading help file", ex);
                     }
                 });
 
+        if(helpData[0].isEmpty())
+            logger.log(Level.WARNING, "Unable to find or load the README.md help file.");
+
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(mdfxString[0]);
+        Node document = parser.parse(helpData[0]);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         WebEngine webEngine = webView.getEngine();
         webEngine.setUserStyleSheetLocation(getClass().getResource(HELP_CSS).toString());
         webEngine.loadContent(renderer.render(document));
-        scrollPane.setStyle("-fx-background-color:transparent");
-        scrollPane.setContent(webView);
 
     }
 
@@ -61,4 +60,5 @@ public class HelpDialogController implements Initializable
     {
 
     }
+
 }

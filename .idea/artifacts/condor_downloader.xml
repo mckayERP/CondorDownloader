@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="condor_downloader">
+    <output-path>$PROJECT_DIR$/out/artifacts/condor_downloader</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/target/CondorDownloader.zip" />
+    </root>
+  </artifact>
+</component>
