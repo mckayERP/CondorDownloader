@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.ButtonType?>
+<DialogPane xmlns:fx="http://javafx.com/fxml/1" fx:id="aboutPane"
+            xmlns="http://javafx.com/javafx/8"
+            fx:controller="org.mckayerp.condor_downloader.HelpAboutController"
+            prefHeight="200">
+    <content>
+        <TextArea fx:id="aboutText" editable="false" focusTraversable="false" minHeight="200" minWidth="400"
+                  VBox.vgrow="ALWAYS" wrapText="true"/>
+    </content>
+    <ButtonType text = "Ok" buttonData="CANCEL_CLOSE"/>
+</DialogPane>
