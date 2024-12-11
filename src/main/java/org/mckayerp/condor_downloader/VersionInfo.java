@@ -22,4 +22,11 @@ public class VersionInfo
         return props.getProperty(key, "Unknown");
     }
 
+    public static String getGitInfo()
+    {
+        return  "Version: " + VersionInfo.getGitProperty("git.build.version") + "\n" +
+                "Commit: " + VersionInfo.getGitProperty("git.commit.id.abbrev") + "\n" +
+                "Build Time: " + VersionInfo.getGitProperty("git.build.time") + "\n";
+
+    }
 }
