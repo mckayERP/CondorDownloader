@@ -6,7 +6,7 @@
 
     <groupId>org.mckayERP</groupId>
     <artifactId>condor_downloader</artifactId>
-    <version>1.0.03</version>
+    <version>1.0.04</version>
     <name>condor_downloader</name>
 
     <properties>
