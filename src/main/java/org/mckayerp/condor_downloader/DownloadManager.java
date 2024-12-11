@@ -58,14 +58,17 @@ public class DownloadManager
 
     public DownloadManager(DownloadData data)
     {
+
         this.downloadData = data;
+        setup();
+
     }
 
     public void startInBackground()
     {
-        // Start the download task in a background thread
+        boolean trueSoDaemonThreadStopsIfApplicationQuits = true;
         Thread downloadThread = new Thread(downloadTask);
-        downloadThread.setDaemon(true); // Daemon thread to ensure it stops if the application exits
+        downloadThread.setDaemon(trueSoDaemonThreadStopsIfApplicationQuits);
         downloadThread.start();
     }
 
@@ -73,21 +76,31 @@ public class DownloadManager
     {
 
         GeckoDriverManager.setup();
-        logger.log(Level.FINE, "->download()");
-        setup();
         downloadDirectory = ApplicationFolderManager.createOrClearTmpFolder();
+
         statusProvider.updateStatus("Starting download...", true, false);
         WebDriver driver = getWebDriver();
-        if (getTaskPageAndLogIn(driver))
+        boolean success = true;
+        try
         {
-            if (flightPlanSelected)
-                downloadFlightPlan(driver);
-            if (numberToDownload > 0)
-                downloadGhosts(getBestTimesForTask(driver), driver);
-            driver.close();
+
+            getTaskPageAndLogIn(driver);
+            downloadFlightPlan(driver);
+            downloadGhosts(getBestTimesForTask(driver), driver);
+
         }
+        catch (RuntimeException e) {
+            success = false;
+            statusProvider.updateStatus(e.getMessage());
+            statusProvider.updateStatus("Check the status and logs and fix the error or, in the case of a timeout, " +
+                    "try the download again.");
+        }
+
+        if (success)
+            statusProvider.updateStatus("Download complete.  Enjoy the flight!");
+
+        driver.close();
         GeckoDriverManager.kill();
-        statusProvider.updateStatus("Download complete.  Enjoy the flight!");
 
     }
 
@@ -102,9 +115,10 @@ public class DownloadManager
         flightPlanSelected = downloadData.isDownloadFlightPlanSelected();
         isCopyGhostsToFlightTrackFolderSelected = downloadData.isCopyGhostsToFlightTrackFolderSelected();
         isCopyGhostsFromCompetitionSelected = downloadData.isCopyGhostsFromCompetitionSelected();
+
     }
 
-    private boolean getTaskPageAndLogIn(WebDriver driver)
+    private void getTaskPageAndLogIn(WebDriver driver)
     {
 
         statusProvider.updateStatus("Searching for the task on condor.club with code " + taskCode + "...");
@@ -113,39 +127,41 @@ public class DownloadManager
         driver.get(urlWithLogin);
         String pageSource = driver.getPageSource();
         if (pageSource == null) {
-            statusProvider.updateStatus(Level.SEVERE, "The page source was null. Unable to load the web page.",
-                    true, true);
-            return false;
+            String errorMsg = "The page source was null. The driver was unable to load the web page. " +
+                    "Check Condor.club in a browser: " + urlWithLogin;
+            logger.log(Level.SEVERE, errorMsg);
+            throw new RuntimeException(errorMsg);
         }
         if (pageSource.contains("Task not available yet."))
         {
-            statusProvider.updateStatus("The task was not found or is not available yet.  Please try again " +
-                    "with a different task code.", false, true);
-            return false;
+            throw new RuntimeException("The task was not found or is not available yet.  Please try again " +
+                    "with a different task code.");
         }
         if (pageSource.contains("This task is currently used in competition and is not available now."))
         {
-            statusProvider.updateStatus("The task is being used in a competition and is not available now.  " +
-                    "Please try again with a different task code.", false, true);
-            return false;
+            throw new RuntimeException("The task is being used in a competition and is not available now.  " +
+                    "Please try again with a different task code.");
         }
 
         statusProvider.updateStatus("Found the task page...");
         condorVersion = getCondorVersion(driver);
         if (versionIsNotCompatible())
-            return false;
+        {
+            String warning = "The task selected is version * but it does not seem Condor * is " +
+                    "installed. Please check the settings and try again or choose a task compatible with the " +
+                    "installed version of Condor.";
+            String versionNumber = condorVersion == CONDOR_2 ? "2" : "3";
+            throw new RuntimeException(warning.replace("*", versionNumber));
+        }
 
-        if (!logInFromTaskPage(driver))
-            return false;
+        logInFromTaskPage(driver);
 
         ghostFolderPath = ApplicationFolderManager.getGhostFolder(condorVersion);
         ghostTaskFolder = ApplicationFolderManager.getGhostTaskFolder(condorVersion, taskCode);
 
-        return true;
-
     }
 
-    private boolean logInFromTaskPage(WebDriver driver)
+    private void logInFromTaskPage(WebDriver driver)
     {
         statusProvider.updateStatus("Logging in...");
         WebElement userEmailElement = driver.findElement(By.name("login"));
@@ -154,10 +170,10 @@ public class DownloadManager
         userEmailElement.sendKeys(downloadData.getCondorClubUserEmail());
         passwordElement.sendKeys(downloadData.getCondorClubUserPassword());
         login.click();
-        return waitForLoginReturningSuccess(driver);
+        waitForLogin(driver);
     }
 
-    private boolean waitForLoginReturningSuccess(WebDriver driver)
+    private void waitForLogin(WebDriver driver)
     {
 
         int maxWaitCount = 10;
@@ -185,11 +201,10 @@ public class DownloadManager
             statusProvider.updateStatus("Login successful...");
         } else if (loginFailed)
         {
-            statusProvider.updateStatus("Login was not successful. Please check the username and password in " + "settings and try again.", true, true);
+            throw new RuntimeException("Login was not successful. Please check the username and password in " + "settings and try again.");
         } else
-            statusProvider.updateStatus("Login was not successful. There was a timeout.", true, true);
+            throw new RuntimeException("Login was not successful. There was a timeout.");
 
-        return loginSuccessful;
     }
 
     private WebDriver getWebDriver()
@@ -252,96 +267,76 @@ public class DownloadManager
 
     private boolean versionIsNotCompatible()
     {
-
-        // @formatter:off
-        if (condorVersion == CONDOR_2 && !condor2DirectoryExists
-                || condorVersion == CONDOR_3 && !condor3DirectoryExists)
-        {
-            warnIncompatibleVersion(condorVersion);
-            return true;
-        }
-        return false;
-        // @formatter:on
-    }
-
-    private void warnIncompatibleVersion(CondorVersion version)
-    {
-        String warning = "The task selected is version * but it does not seem Condor * is " +
-                "installed. Please check the settings and try again or choose a task compatible with the " +
-                "installed version of Condor.";
-        String versionNumber = version == CONDOR_2 ? "2" : "3";
-        statusProvider.clearStatus();
-        statusProvider.updateStatus(Level.WARNING, warning.replace("*", versionNumber));
+        return (condorVersion == CONDOR_2 && !condor2DirectoryExists
+                || condorVersion == CONDOR_3 && !condor3DirectoryExists);
     }
 
 
     public void downloadFlightPlan(WebDriver driver)
     {
 
+        if (!flightPlanSelected)
+            return;
+
         statusProvider.updateStatus("Downloading the flight plan...");
-        String currentURL = driver.getCurrentUrl();
-        if (currentURL == null)
+        String taskPageURL = driver.getCurrentUrl();
+        if (taskPageURL == null)
             throw new RuntimeException("Condor.club task page URL is null");
 
         String taskPageSource = driver.getPageSource();
         if (taskPageSource == null || taskPageSource.isEmpty())
-        {
-            statusProvider.updateStatus(Level.SEVERE, "The task page source is null or empty!");
-            return;
-        }
+            throw new RuntimeException("The task page source is null or empty!");
+
         String taskID = getCondorClubTaskIDFromPageSource(taskPageSource);
         boolean downloadPossible = taskPageSource.contains("Download it now!");
         if (!downloadPossible)
         {
-            statusProvider.updateStatus("The flight plan can't be downloaded. It may be active in a competition " +
+            throw new RuntimeException("The flight plan can't be downloaded. It may be active in a competition " +
                     "or not available yet.");
-            driver.navigate().to(currentURL);
-            return;
         }
 
         try
         {
             driver.navigate().to("https://www.condor.club/download2/0/?id=" + taskID + "&next=1");
-        } catch (TimeoutException ignored)
-        {
-            // Timeout is expected
-        }
+        } catch (TimeoutException ignored) {}
 
-        if (waitForDownload(downloadDirectory, ".fpl"))
-            statusProvider.updateStatus("Downloaded flight plan for task " + taskCode + "...");
-        else
-            statusProvider.updateStatus("Unable to downloaded flight plan for task " + taskCode +
+        if (!waitForDownload(downloadDirectory, ".fpl"))
+            throw new RuntimeException("Unable to downloaded flight plan for task " + taskCode +
                     ". A timeout occurred.");
 
-        Path sourceDir = downloadDirectory;
+        statusProvider.updateStatus("Downloaded flight plan for task " + taskCode + "...");
+
         Path destDir = ApplicationFolderManager.getFlightPlanFolder(condorVersion);
         Path[] destFile = {null};
-        try (Stream<Path> paths = Files.walk(sourceDir))
+        try (Stream<Path> paths = Files.walk(downloadDirectory))
         {
-            paths.filter(Files::isRegularFile).filter(path -> path.toFile().getName().endsWith((".fpl"))).forEach(sourceFile ->
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toFile().getName().endsWith((".fpl")))
+                    .forEach(sourceFile ->
             {
                 try
                 {
                     String fileName = sourceFile.toFile().getName();
                     String newFileName = taskCode + "_" + fileName;
                     String alternateName = fileName.substring(0,fileName.indexOf(".fpl")) + "_" + taskCode + ".fpl";
-                    destFile[0] = destDir.resolve(sourceDir.relativize(sourceFile));
+                    destFile[0] = destDir.resolve(downloadDirectory.relativize(sourceFile));
                     Files.createDirectories(destFile[0].getParent());
                     Files.copy(sourceFile, Paths.get(destFile[0].getParent().toString(),alternateName), REPLACE_EXISTING);
                     Files.move(sourceFile, Paths.get(destFile[0].getParent().toString(),newFileName), REPLACE_EXISTING);
                 } catch (IOException e)
                 {
-                    statusProvider.updateStatus(Level.WARNING, "Failed to move file: " + e.getMessage());
+                    throw new RuntimeException("Failed to move flight plan file from " + downloadDirectory + " to " + destDir +
+                            " " + e.getMessage());
                 }
             });
 
-            statusProvider.updateStatus("Flight plan downloaded successfully.");
         } catch (IOException e)
         {
-            statusProvider.updateStatus(Level.WARNING, "Failed to walk the ghost folder path: " + e.getMessage());
+            throw new RuntimeException("There was a problem finding the flight plan in the download location: " + e.getMessage());
         }
 
-        driver.navigate().to(currentURL);
+        statusProvider.updateStatus("Flight plan downloaded successfully.");
+        driver.navigate().to(taskPageURL);
 
     }
 
@@ -367,7 +362,7 @@ public class DownloadManager
             }
         } catch (InterruptedException | IOException e)
         {
-            statusProvider.updateStatus(Level.WARNING, "Download directory not found or download was interrupted.");
+            throw new RuntimeException("Download directory not found or download was interrupted.");
         }
         return found;
     }
@@ -384,6 +379,9 @@ public class DownloadManager
 
     private void downloadGhosts(String bestTimesSource, WebDriver driver)
     {
+        if (numberToDownload <= 0)
+            return;
+
         statusProvider.updateStatus("Looking for " + numberToDownload + " ghost flight track" + (numberToDownload > 1 ? "s" : "") + " to download...");
         int[] count = {0};
         List<String> matches = findGhostIDs(bestTimesSource, numberToDownload);
@@ -447,14 +445,14 @@ public class DownloadManager
                     Files.copy(sourceFile, destFile, REPLACE_EXISTING);
                 } catch (IOException e)
                 {
-                    statusProvider.updateStatus(Level.WARNING, "Failed to copy file " + sourceFile.toString());
+                    throw new RuntimeException("Failed to copy ghost tracks to the flight tracks folder " + e.getMessage());
                 }
             });
 
             statusProvider.updateStatus("All existing and/or new ghost flight tracks copied successfully to the flight track folder: " + destDir);
         } catch (IOException e)
         {
-            statusProvider.updateStatus(Level.WARNING, "Failed to find or walk the ghost folder " + sourceDir.toString() + "\n" + e);
+            throw new RuntimeException("Failed to access the folder folder " + sourceDir.toString() + "\n" + e.getMessage());
         }
 
     }
@@ -471,7 +469,6 @@ public class DownloadManager
             driver.navigate().to("https://www.condor.club/download2/0/?res=" + ghostID + "&next=1");
         } catch (TimeoutException ignored)
         {
-            // Timeout is expected
         }
         boolean success = waitForDownload(downloadDirectory, ghostID);
         if (success)

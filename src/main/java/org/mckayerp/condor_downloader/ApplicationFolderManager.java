@@ -33,8 +33,11 @@ class ApplicationFolderManager
         {
             FolderUtilities.deleteFolderContents(downloadDirectory.toFile());
         } else if (!downloadDirectory.toFile().mkdir())
-            logger.log(Level.SEVERE, "Did not manage to create temporary download directory " + downloadDirectory);
-
+        {
+            String errorMsg = "Did not manage to create temporary download directory " + downloadDirectory;
+            logger.log(Level.SEVERE, errorMsg);
+            throw new RuntimeException(errorMsg);
+        }
         return downloadDirectory;
 
     }
